@@ -1,0 +1,2339 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#03030a">
+<title>RhythmLang Pro</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#03030a;--s1:#080814;--s2:#0e0e1c;
+  --border:#1a1a35;--border2:#252545;
+  --a1:#00e5ff;--a2:#ff3d71;--a3:#a855f7;--a4:#f59e0b;--a5:#10b981;
+  --text:#dde4f5;--dim:#6b7494;--dim2:#4a4f6a;
+  --nav-h:60px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --r:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;min-height:100%;-webkit-overflow-scrolling:touch}
+body{overflow-x:hidden;padding-bottom:calc(var(--nav-h) + var(--safe-b) + 8px)}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 600px 300px at 20% 10%,rgba(0,229,255,.04),transparent 70%),radial-gradient(ellipse 500px 300px at 80% 80%,rgba(168,85,247,.04),transparent 70%);pointer-events:none;z-index:0}
+
+/* ===== BOTTOM NAV ===== */
+.bot-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:900;
+  background:rgba(8,8,20,.97);border-top:1px solid var(--border);
+  padding-bottom:var(--safe-b);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+}
+.bot-nav-row{display:flex;height:var(--nav-h)}
+.bnb{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;border:none;background:none;color:var(--dim);cursor:pointer;
+  font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.5px;
+  border-right:1px solid var(--border);transition:color .15s;
+  padding:6px 2px;
+}
+.bnb:last-child{border-right:none}
+.bnb:active{background:rgba(255,255,255,.04)}
+.bnb .bi{font-size:22px;line-height:1}
+.bnb.act{color:var(--a1)}
+.bnb.gen-b{color:var(--a1);background:rgba(0,229,255,.06)}
+.bnb.play-b{color:var(--a5)}
+.bnb.play-b.on{color:var(--a2)}
+.bnb.gen-b:disabled{opacity:.4;cursor:not-allowed}
+
+/* ===== PAGE WRAPPER ===== */
+.page{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:14px 14px 0}
+
+/* ===== HEADER ===== */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:5px;line-height:1;
+  background:linear-gradient(135deg,var(--a1),var(--a3) 60%,var(--a2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-sub{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:2px;color:var(--dim);margin-top:1px;text-transform:uppercase}
+.hdr-badges{display:flex;gap:5px;flex-wrap:wrap}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:1px;padding:3px 7px;border-radius:2px;border:1px solid;text-transform:uppercase}
+.b-status{color:var(--a4);border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.06)}
+
+/* ===== CARD ===== */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden;position:relative}
+.card-top{height:2px;background:linear-gradient(90deg,var(--a1),transparent 60%)}
+.card-body{padding:14px}
+.card-title{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--a1);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border2)}
+
+/* ===== TOPIC INPUT ===== */
+.topic-inp{
+  width:100%;background:var(--s2);border:1px solid var(--border2);
+  color:var(--text);padding:13px 14px;border-radius:5px;
+  font-family:'IBM Plex Mono',monospace;font-size:16px;outline:none;
+  margin-bottom:10px;
+}
+.topic-inp:focus{border-color:var(--a1)}
+
+/* ===== ACCORDION CATEGORIES ===== */
+.cat-section{border-bottom:1px solid var(--border)}
+.cat-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 14px;cursor:pointer;
+  font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;
+  color:var(--dim);text-transform:uppercase;user-select:none;min-height:48px;
+}
+.cat-hdr:active{background:rgba(255,255,255,.02)}
+.cat-hdr.open{color:var(--a1)}
+.cat-arr{font-size:10px;transition:transform .2s;opacity:.5}
+.cat-hdr.open .cat-arr{transform:rotate(90deg);opacity:1}
+.cat-bd{display:none;padding:4px 10px 10px}
+.cat-bd.open{display:block}
+.tpill{
+  display:inline-block;margin:3px;padding:8px 11px;
+  background:var(--s2);border:1px solid var(--border);border-radius:4px;
+  cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim);
+  transition:all .15s;
+}
+.tpill:active{transform:scale(.94)}
+.tpill.sel{border-color:var(--a1);color:var(--a1);background:rgba(0,229,255,.07)}
+
+/* ===== CONFIG ROWS ===== */
+.cfg-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--dim2);text-transform:uppercase;margin:13px 0 7px}
+.cfg-lbl:first-child{margin-top:0}
+
+/* Lang */
+.lang-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.ltab{
+  background:var(--s2);border:1px solid var(--border);color:var(--dim);
+  padding:10px 2px 8px;border-radius:5px;cursor:pointer;
+  font-family:'IBM Plex Mono',monospace;font-size:8px;text-align:center;
+  min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.ltab .em{font-size:18px;display:block;margin-bottom:3px}
+.ltab:active{transform:scale(.94)}
+.ltab.on{border-color:var(--a1);color:var(--a1);background:rgba(0,229,255,.07)}
+
+/* Style */
+.style-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.sbtn{
+  background:var(--s2);border:1px solid var(--border);color:var(--dim);
+  padding:12px 4px;border-radius:5px;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
+  text-align:center;min-height:48px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.sbtn:active{transform:scale(.94)}
+.sbtn.on{border-color:var(--a2);color:var(--a2);background:rgba(255,61,113,.07)}
+
+/* Rhyme */
+.rhyme-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.rbtn{
+  background:var(--s2);border:1px solid var(--border);color:var(--dim);
+  padding:10px 2px;border-radius:5px;cursor:pointer;
+  font-family:'IBM Plex Mono',monospace;font-size:9px;text-align:center;
+  min-height:44px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.rbtn:active{transform:scale(.94)}
+.rbtn.on{border-color:var(--a3);color:var(--a3);background:rgba(168,85,247,.07)}
+
+/* Engine select */
+.eng-sel{
+  width:100%;background:var(--s2);border:1px solid var(--border2);color:var(--text);
+  padding:13px 30px 13px 12px;border-radius:5px;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none;cursor:pointer;
+  appearance:none;min-height:48px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2300e5ff' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+}
+
+/* Quatrain */
+.q-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.qbtn{
+  background:var(--s2);border:1px solid var(--border);color:var(--dim);
+  padding:10px 2px;border-radius:5px;cursor:pointer;
+  font-family:'Bebas Neue',sans-serif;font-size:22px;text-align:center;
+  min-height:48px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.qbtn:active{transform:scale(.94)}
+.qbtn.on{border-color:var(--a4);color:var(--a4);background:rgba(245,158,11,.07)}
+
+/* TR toggle */
+.tr-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+
+/* ===== GENERATE BUTTON ===== */
+.gen-btn-main{
+  width:100%;padding:17px;margin-bottom:12px;
+  background:linear-gradient(135deg,rgba(0,229,255,.12),rgba(168,85,247,.08));
+  border:1px solid var(--a1);color:var(--a1);
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:5px;
+  cursor:pointer;border-radius:var(--r);transition:all .3s;
+  position:relative;overflow:hidden;min-height:56px;
+}
+.gen-btn-main::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,229,255,.1),transparent);transition:left .5s}
+.gen-btn-main:hover::before{left:100%}
+.gen-btn-main:active{transform:scale(.98)}
+.gen-btn-main:disabled{opacity:.3;cursor:not-allowed}
+.gen-btn-main.busy{animation:gPulse 1.2s ease-in-out infinite}
+@keyframes gPulse{0%,100%{box-shadow:0 0 0 rgba(0,229,255,0)}50%{box-shadow:0 0 35px rgba(0,229,255,.4)}}
+
+/* ===== PIPELINE ===== */
+.pipeline{display:none;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.pipeline.show{display:block}
+.pipe-title{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--a3);margin-bottom:12px;text-transform:uppercase}
+.pipe-steps{display:flex;align-items:center}
+.pipe-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+.pipe-step:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:var(--border2);z-index:0}
+.pipe-step:not(:last-child).done::after{background:var(--a5)}
+.pipe-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border2);background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:12px;position:relative;z-index:1;transition:all .3s}
+.pipe-step.active .pipe-dot{border-color:var(--a1);background:rgba(0,229,255,.1);box-shadow:0 0 16px rgba(0,229,255,.4);animation:dPulse 1s ease-in-out infinite}
+.pipe-step.done .pipe-dot{border-color:var(--a5);background:rgba(16,185,129,.1)}
+@keyframes dPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.pipe-lbl{font-family:'IBM Plex Mono',monospace;font-size:7px;color:var(--dim);margin-top:4px;text-align:center;text-transform:uppercase}
+.pipe-step.active .pipe-lbl{color:var(--a1)}
+.pipe-step.done .pipe-lbl{color:var(--a5)}
+
+/* ===== LYRICS ===== */
+.lyrics-panel{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px;position:relative;min-height:140px}
+.lyrics-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--a2),var(--a3),var(--a1));border-radius:var(--r) var(--r) 0 0}
+.lp-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.lp-title{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--a2);text-transform:uppercase}
+.lp-meta{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:1px;padding:3px 6px;border-radius:2px;border:1px solid var(--border2);color:var(--dim)}
+.copy-btn{background:var(--s2);border:1px solid var(--border2);color:var(--dim);padding:8px 14px;border-radius:4px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:8px;min-height:36px;transition:all .2s}
+.copy-btn:hover{border-color:var(--a1);color:var(--a1)}
+.verses-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.verse-card{background:var(--s2);border:1px solid var(--border2);border-radius:5px;padding:13px;transition:all .2s}
+.verse-card.active-verse{border-color:var(--a1);box-shadow:0 0 16px rgba(0,229,255,.3);background:rgba(0,229,255,.04)}
+.vc-label{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:3px;color:var(--a2);margin-bottom:10px;text-transform:uppercase}
+.vc-line{padding:9px 4px 8px;border-bottom:1px solid var(--border);opacity:0;animation:lIn .35s ease forwards;transition:background .2s;border-radius:3px;margin:0 -4px}
+.vc-line:last-child{border-bottom:none}
+@keyframes lIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+.vc-line.playing{background:rgba(0,229,255,.07);border-left:2px solid var(--a1);padding-left:8px}
+.vc-line.playing .vc-text{color:var(--a1)}
+.line-top{display:flex;gap:8px;align-items:flex-start}
+.rh-letter{font-family:'Bebas Neue',sans-serif;font-size:15px;min-width:14px;line-height:1.4;flex-shrink:0}
+.vc-text{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.6;color:var(--text);transition:color .2s}
+.vc-tr{font-family:'Barlow Condensed',sans-serif;font-size:14px;color:var(--dim);font-style:italic;margin-top:3px;padding-left:22px;line-height:1.4}
+.playing .vc-tr{color:rgba(0,229,255,.6)}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:120px;gap:10px;color:var(--dim2)}
+.empty-icon{font-size:40px;opacity:.12}
+.empty-txt{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:3px}
+.info-strip{display:flex;gap:10px;flex-wrap:wrap;padding:8px 12px;background:var(--s2);border:1px solid var(--border);border-radius:3px;margin-top:10px}
+.iitem{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--dim)}
+.iitem b{color:var(--a4)}
+
+/* ===== PLAYER PANEL ===== */
+.player-panel{display:none;background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.player-panel.show{display:block}
+.player-panel::before{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--a5),var(--a3));margin:-14px -14px 14px;border-radius:var(--r) var(--r) 0 0}
+.pp-title{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--a5);text-transform:uppercase;margin-bottom:13px}
+
+/* Volume */
+.vol-sec{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--s2);padding:12px;border-radius:5px;margin-bottom:10px}
+.vol-row{display:flex;flex-direction:column;gap:8px}
+.vol-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--dim);text-transform:uppercase;display:flex;justify-content:space-between}
+.vol-val{color:var(--a1)}
+input[type=range]{width:100%;height:5px;background:var(--border2);border-radius:3px;outline:none;cursor:pointer;accent-color:var(--a1);display:block}
+
+/* Voice row */
+.voice-sec{background:var(--s2);padding:10px 12px;border-radius:5px;margin-bottom:10px}
+.voice-row-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.voice-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--dim);white-space:nowrap}
+.voice-sel{flex:1;min-width:0;background:var(--s1);border:1px solid var(--border2);color:var(--text);padding:9px 8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;min-height:40px}
+.voice-row-bot{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.mel-toggle{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim);cursor:pointer;min-height:40px}
+.mel-toggle input[type=checkbox]{width:18px;height:18px;accent-color:var(--a3)}
+.test-btn{background:var(--s1);border:1px solid var(--border2);color:var(--dim);padding:8px 14px;border-radius:4px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:9px;min-height:40px;transition:all .2s}
+.test-btn:hover{border-color:var(--a1);color:var(--a1)}
+
+/* Speed */
+.speed-sec{background:var(--s2);padding:10px 12px;border-radius:5px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.speed-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--dim);text-transform:uppercase}
+.speed-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.spd-btn{background:var(--s1);border:1px solid var(--border2);color:var(--dim);padding:10px 4px;border-radius:4px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:9px;text-align:center;min-height:44px;transition:all .15s}
+.spd-btn:active{transform:scale(.95)}
+.spd-btn.on{border-color:var(--a3);color:var(--a3);background:rgba(168,85,247,.1)}
+.reading-status{display:flex;gap:10px;align-items:center;min-height:18px;flex-wrap:wrap}
+.rs-line{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--a1);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rs-rhyme{font-family:'Bebas Neue',sans-serif;font-size:16px}
+.rs-mode{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:1px;padding:2px 6px;border-radius:2px;border:1px solid var(--border2);color:var(--dim2)}
+.rs-mode.watchdog{color:var(--a4);border-color:rgba(245,158,11,.3)}
+
+/* Beat tabs */
+.beat-tabs{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;margin-bottom:10px}
+.btab{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;padding:9px 13px;border-radius:3px;border:1px solid var(--border2);color:var(--dim);cursor:pointer;flex-shrink:0;min-height:40px;display:flex;align-items:center;transition:all .15s}
+.btab:active{transform:scale(.94)}
+.btab.on{border-color:var(--a5);color:var(--a5);background:rgba(16,185,129,.08)}
+
+/* Drum grid */
+.drum-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}
+.step-nums{display:grid;grid-template-columns:50px repeat(16,minmax(26px,1fr));gap:3px;min-width:480px;margin-bottom:3px}
+.snum{font-family:'IBM Plex Mono',monospace;font-size:7px;color:var(--border2);text-align:center;height:14px;display:flex;align-items:center;justify-content:center}
+.snum.cur{color:var(--a1)}
+.drum-grid{display:grid;grid-template-columns:50px repeat(16,minmax(26px,1fr));gap:3px;min-width:480px}
+.dg-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--dim);display:flex;align-items:center;justify-content:flex-end;padding-right:6px;height:28px}
+.dcell{height:28px;border-radius:3px;border:1px solid var(--border);background:var(--s2);cursor:pointer;transition:background .08s}
+.dcell:active{transform:scale(1.15)}
+.dcell.cur{outline:2px solid rgba(255,255,255,.2);outline-offset:1px}
+.dcell.flash{transform:scale(1.2)}
+.dcell.ck{background:var(--a2);border-color:var(--a2);box-shadow:0 0 5px rgba(255,61,113,.4)}
+.dcell.cs{background:var(--a1);border-color:var(--a1);box-shadow:0 0 5px rgba(0,229,255,.4)}
+.dcell.ch{background:var(--a3);border-color:var(--a3);box-shadow:0 0 5px rgba(168,85,247,.4)}
+.dcell.cb{background:var(--a4);border-color:var(--a4);box-shadow:0 0 5px rgba(245,158,11,.4)}
+.dcell.cc{background:#f9a8d4;border-color:#f9a8d4;box-shadow:0 0 5px rgba(249,168,212,.4)}
+.dcell.co{background:var(--a5);border-color:var(--a5);box-shadow:0 0 5px rgba(16,185,129,.4)}
+
+/* Transport */
+.transport{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap}
+.tbtn{width:46px;height:46px;border-radius:50%;background:var(--s2);border:1px solid var(--border2);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:all .2s}
+.tbtn:active{transform:scale(.88)}
+.tbtn.playing{border-color:var(--a1);background:rgba(0,229,255,.1);color:var(--a1);box-shadow:0 0 14px rgba(0,229,255,.2)}
+.bpm-wrap{display:flex;align-items:center;gap:8px;flex:1;min-width:100px}
+.bpm-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--dim);letter-spacing:2px;white-space:nowrap}
+.bpm-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--a1);min-width:44px;text-align:right}
+.tts-bar{display:none;align-items:flex-end;gap:3px;height:22px}
+.tts-bar.show{display:flex}
+.tbar{width:3px;background:var(--a2);border-radius:2px;animation:tD .6s ease-in-out infinite}
+.tbar:nth-child(2){animation-delay:.1s}
+.tbar:nth-child(3){animation-delay:.2s;background:var(--a3)}
+.tbar:nth-child(4){animation-delay:.3s}
+.tbar:nth-child(5){animation-delay:.4s;background:var(--a1)}
+@keyframes tD{0%,100%{height:3px}50%{height:18px}}
+.sync-chip{font-family:'IBM Plex Mono',monospace;font-size:7px;letter-spacing:1px;padding:3px 7px;border-radius:2px;border:1px solid var(--border2);color:var(--dim2);margin-left:auto}
+.sync-chip.ok{color:var(--a5);border-color:rgba(16,185,129,.3)}
+
+/* BG bar */
+.bg-bar{display:none;align-items:center;gap:8px;padding:8px 12px;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:4px;margin-bottom:10px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--a5)}
+.bg-bar.show{display:flex}
+
+/* Sessions */
+.sessions-panel{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.sessions-panel::before{content:'';display:block;height:2px;background:linear-gradient(90deg,var(--a4),transparent 60%);margin:-14px -14px 14px;border-radius:var(--r) var(--r) 0 0}
+.sp-title{font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--a4);text-transform:uppercase;margin-bottom:12px}
+.save-row{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.save-row input{width:100%;background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:12px 12px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:16px;min-height:46px}
+.save-row input:focus{border-color:var(--a4);outline:none}
+.save-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.save-btn{background:var(--s2);border:1px solid var(--a4);color:var(--a4);padding:10px 8px;border-radius:4px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:10px;text-align:center;min-height:44px;transition:all .2s}
+.save-btn:active{transform:scale(.96)}
+.save-btn:hover{background:rgba(245,158,11,.15)}
+.sessions-list{max-height:180px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sess-item{display:flex;justify-content:space-between;align-items:center;background:var(--s2);border:1px solid var(--border2);border-radius:4px;padding:10px 12px;margin-bottom:6px;min-height:46px}
+.sess-name{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text);word-break:break-all;flex:1;padding-right:8px}
+.sess-acts{display:flex;gap:6px;flex-shrink:0}
+.sess-acts button{cursor:pointer;padding:7px 10px;border-radius:3px;transition:all .2s;font-family:monospace;font-size:11px;min-height:36px;border:none;background:none}
+.sess-acts .lb{color:var(--a5);border:1px solid var(--a5) !important;background:rgba(16,185,129,.08)}
+.sess-acts .db{color:var(--a2);border:1px solid var(--a2) !important;background:rgba(255,61,113,.08)}
+.export-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.export-btn{background:var(--s2);border:1px solid var(--a1);color:var(--a1);padding:10px 8px;border-radius:4px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:9px;text-align:center;min-height:44px;transition:all .2s}
+.export-btn:active{transform:scale(.96)}
+.export-btn:hover{background:rgba(0,229,255,.12)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:var(--s1)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* PC: geniş ekranda hafif genişlet */
+@media(min-width:680px){
+  .page{padding:20px 20px 0}
+  .verses-grid{grid-template-columns:repeat(2,1fr)}
+  .vol-sec{grid-template-columns:1fr 1fr}
+  .save-row{flex-direction:row;flex-wrap:wrap}
+  .save-row input{flex:1;min-width:140px}
+  .save-btns{grid-template-columns:repeat(3,1fr)}
+}
+@media(min-width:900px){
+  .page{max-width:860px;padding:24px 32px 0}
+}
+</style>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div>
+      <div class="logo">RHYTHMLANG</div>
+      <div class="logo-sub">v7 · Mobil & PC · Vercel</div>
+    </div>
+    <div class="hdr-badges">
+      <div class="badge b-status" id="statusBadge">📚 HAZIR</div>
+    </div>
+  </div>
+
+  <div class="bg-bar" id="bgBar">🔊 Arka planda çalıyor</div>
+
+  <!-- ===== KONU & AYARLAR KARTI ===== -->
+  <div class="card">
+    <div class="card-top"></div>
+    <div class="card-body">
+      <div class="card-title">🎯 Konu & Ayarlar</div>
+
+      <!-- Konu input -->
+      <input type="text" id="topicInput" class="topic-inp" placeholder="ör: özgürlük, gelecek, aile..." value="">
+
+      <!-- Kategoriler accordion -->
+      <div id="catContainer"></div>
+
+      <!-- DİL -->
+      <div class="cfg-lbl">Dil</div>
+      <div class="lang-row">
+        <div class="ltab on" data-lang="English" onclick="setLang(this,'English')"><span class="em">🇬🇧</span>EN</div>
+        <div class="ltab" data-lang="German" onclick="setLang(this,'German')"><span class="em">🇩🇪</span>DE</div>
+        <div class="ltab" data-lang="Russian" onclick="setLang(this,'Russian')"><span class="em">🇷🇺</span>RU</div>
+        <div class="ltab" data-lang="Spanish" onclick="setLang(this,'Spanish')"><span class="em">🇪🇸</span>ES</div>
+        <div class="ltab" data-lang="Japanese" onclick="setLang(this,'Japanese')"><span class="em">🇯🇵</span>JP</div>
+      </div>
+
+      <!-- TARZ -->
+      <div class="cfg-lbl">Tarz</div>
+      <div class="style-row">
+        <div class="sbtn on" onclick="setSt(this,'RAP')">🎤 RAP</div>
+        <div class="sbtn" onclick="setSt(this,'POETRY')">✍️ ŞİİR</div>
+        <div class="sbtn" onclick="setSt(this,'DRILL')">🔥 DRILL</div>
+        <div class="sbtn" onclick="setSt(this,'TRAP')">💥 TRAP</div>
+        <div class="sbtn" onclick="setSt(this,'LOFI')">🌙 LO-Fİ</div>
+        <div class="sbtn" onclick="setSt(this,'BOOM BAP')">🥁 BOOM BAP</div>
+      </div>
+
+      <!-- KAFİYE -->
+      <div class="cfg-lbl">Kafiye Şeması</div>
+      <div class="rhyme-row">
+        <div class="rbtn on" onclick="setRh(this,'AABB')">AABB</div>
+        <div class="rbtn" onclick="setRh(this,'AABA')">AABA</div>
+        <div class="rbtn" onclick="setRh(this,'ABAB')">ABAB</div>
+        <div class="rbtn" onclick="setRh(this,'ABBA')">ABBA</div>
+        <div class="rbtn" onclick="setRh(this,'AAAA')">AAAA</div>
+      </div>
+
+      <!-- AI MOTORU -->
+      <div class="cfg-lbl">AI Motoru</div>
+      <select class="eng-sel" id="engine">
+        <option value="groq">⚡ GROQ — llama-3.3-70b</option>
+        <option value="gemini">🌟 GEMINI — gemini-2.0-flash</option>
+        <option value="sambanova">🔥 SAMBA — Llama-3.3-70B</option>
+        <option value="mistral">🌊 MISTRAL — mistral-large</option>
+      </select>
+
+      <!-- DÖRTLÜK -->
+      <div class="cfg-lbl">Dörtlük Sayısı</div>
+      <div class="q-row">
+        <div class="qbtn on" onclick="setQ(this,1)">1</div>
+        <div class="qbtn" onclick="setQ(this,2)">2</div>
+        <div class="qbtn" onclick="setQ(this,3)">3</div>
+        <div class="qbtn" onclick="setQ(this,4)">4</div>
+      </div>
+
+      <!-- TÜRKÇE ÇEVİRİ -->
+      <div class="cfg-lbl">Türkçe Çeviri (her satır altında)</div>
+      <div class="tr-row">
+        <div class="rbtn on" id="trOn" onclick="setTr(true)">✅ AÇIK</div>
+        <div class="rbtn" id="trOff" onclick="setTr(false)">❌ KAPALI</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OLUŞTUR butonu — her zaman görünür -->
+  <button class="gen-btn-main" id="genBtn" onclick="autoRun()">🎤 OLUŞTUR & ÇAL</button>
+
+  <!-- Pipeline -->
+  <div class="pipeline" id="pipeline">
+    <div class="pipe-title">⬡ AUTO PIPELINE</div>
+    <div class="pipe-steps">
+      <div class="pipe-step" id="ps0"><div class="pipe-dot">📋</div><div class="pipe-lbl">Konu</div></div>
+      <div class="pipe-step" id="ps1"><div class="pipe-dot">🤖</div><div class="pipe-lbl">AI</div></div>
+      <div class="pipe-step" id="ps2"><div class="pipe-dot">✅</div><div class="pipe-lbl">Parse</div></div>
+      <div class="pipe-step" id="ps3"><div class="pipe-dot">🥁</div><div class="pipe-lbl">Drum</div></div>
+      <div class="pipe-step" id="ps4"><div class="pipe-dot">🔊</div><div class="pipe-lbl">Ses</div></div>
+      <div class="pipe-step" id="ps5"><div class="pipe-dot">🔄</div><div class="pipe-lbl">Döngü</div></div>
+    </div>
+  </div>
+
+  <!-- Lyrics -->
+  <div class="lyrics-panel">
+    <div class="lp-head">
+      <div class="lp-title">Kafiyeli Dörtlükler</div>
+      <div class="lp-meta">
+        <div class="chip" id="metaEngine">—</div>
+        <div class="chip" id="metaScheme">—</div>
+        <div class="chip" id="metaBpm">— BPM</div>
+      </div>
+      <button class="copy-btn" onclick="copyAll()">KOPYALA</button>
+    </div>
+    <div id="lyricsContent">
+      <div class="empty-state">
+        <div class="empty-icon">🎵</div>
+        <div class="empty-txt">Konu seç ve oluştur</div>
+      </div>
+    </div>
+    <div class="info-strip" id="infoStrip" style="display:none">
+      <div class="iitem">KONU: <b id="iTopic">—</b></div>
+      <div class="iitem">DİL: <b id="iLang">—</b></div>
+      <div class="iitem">TARZ: <b id="iStyle">—</b></div>
+      <div class="iitem">ENERJİ: <b id="iEnergy">—</b></div>
+    </div>
+  </div>
+
+  <!-- Player -->
+  <div class="player-panel" id="playerPanel">
+    <div class="pp-title">🎚️ Player & Drum Rack</div>
+
+    <!-- Ses seviyeleri -->
+    <div class="vol-sec">
+      <div class="vol-row">
+        <div class="vol-lbl">🥁 Ritim <span class="vol-val" id="drumVolVal">70%</span></div>
+        <input type="range" id="drumVol" min="0" max="1" step="0.01" value="0.7"
+          oninput="document.getElementById('drumVolVal').textContent=Math.round(this.value*100)+'%'">
+      </div>
+      <div class="vol-row">
+        <div class="vol-lbl">🗣️ Okuma <span class="vol-val" id="ttsVolVal">100%</span></div>
+        <input type="range" id="ttsVol" min="0" max="1" step="0.01" value="1.0"
+          oninput="document.getElementById('ttsVolVal').textContent=Math.round(this.value*100)+'%'">
+      </div>
+    </div>
+
+    <!-- Ses seçimi -->
+    <div class="voice-sec">
+      <div class="voice-row-top">
+        <span class="voice-lbl">🎙️ SES:</span>
+        <select id="voiceSelect" class="voice-sel"></select>
+      </div>
+      <div class="voice-row-bot">
+        <label class="mel-toggle">
+          <input type="checkbox" id="melodicMode" checked> 🎵 Melodik
+        </label>
+        <button class="test-btn" onclick="testVoice()">🔊 TEST</button>
+      </div>
+    </div>
+
+    <!-- Okuma hızı -->
+    <div class="speed-sec">
+      <div class="speed-lbl">⚡ Okuma Hızı</div>
+      <div class="speed-btns">
+        <button class="spd-btn" data-speed="slow" onclick="setSpeed(this,'slow')">🐢 YAVAŞ</button>
+        <button class="spd-btn on" data-speed="medium" onclick="setSpeed(this,'medium')">🎯 ORTA</button>
+        <button class="spd-btn" data-speed="fast" onclick="setSpeed(this,'fast')">⚡ HIZLI</button>
+      </div>
+      <div class="reading-status">
+        <span class="rs-line" id="rsLine">—</span>
+        <span class="rs-rhyme" id="rsRhyme" style="color:#ff3d71">A</span>
+        <span class="rs-mode" id="rsMode">HAZIR</span>
+      </div>
+    </div>
+
+    <!-- Beat tabs -->
+    <div class="beat-tabs" id="beatTabs">
+      <div class="btab on" onclick="setBeat(this,'TRAP')">TRAP</div>
+      <div class="btab" onclick="setBeat(this,'BOOM BAP')">BOOM BAP</div>
+      <div class="btab" onclick="setBeat(this,'DRILL')">DRILL</div>
+      <div class="btab" onclick="setBeat(this,'LO-FI')">LO-FI</div>
+      <div class="btab" onclick="setBeat(this,'AFROBEATS')">AFRO</div>
+      <div class="btab" onclick="setBeat(this,'PHONK')">PHONK</div>
+    </div>
+
+    <!-- Drum grid -->
+    <div class="drum-wrap">
+      <div class="step-nums" id="stepNums"></div>
+      <div class="drum-grid" id="drumGrid"></div>
+    </div>
+
+    <!-- Transport -->
+    <div class="transport">
+      <button class="tbtn" id="playBtn" onclick="togglePlay()">▶</button>
+      <button class="tbtn" onclick="randomDrums()">🎲</button>
+      <button class="tbtn" onclick="clearDrums()">✕</button>
+      <div class="bpm-wrap">
+        <div class="bpm-lbl">BPM</div>
+        <input type="range" id="bpmSlider" min="60" max="200" value="90" oninput="setBpm(this.value)">
+        <div class="bpm-val" id="bpmVal">90</div>
+      </div>
+      <div class="tts-bar" id="ttsBar">
+        <div class="tbar"></div><div class="tbar"></div><div class="tbar"></div>
+        <div class="tbar"></div><div class="tbar"></div>
+      </div>
+      <div class="sync-chip" id="syncChip">SYNC</div>
+    </div>
+  </div>
+
+  <!-- Sessions -->
+  <div class="sessions-panel" id="sessionsPanel">
+    <div class="sp-title">💾 Kayıtlar & Dışa Aktarım</div>
+    <div class="save-row">
+      <input type="text" id="sessName" placeholder="Oturum adı..." value="Kayıt 1">
+      <div class="save-btns">
+        <button class="save-btn" onclick="saveSession()">💾 KAYDET</button>
+        <button class="save-btn" onclick="exportJSON()">📁 JSON</button>
+        <button class="save-btn" onclick="importJSON()">📂 AKTAR</button>
+      </div>
+    </div>
+    <div class="sessions-list" id="sessionsList"></div>
+    <div class="export-btns">
+      <button class="export-btn" onclick="exportTxt()">📄 Şiir (.txt)</button>
+      <button class="export-btn" onclick="exportDrum()">🥁 Drum (.json)</button>
+      <button class="export-btn" id="recBtn" onclick="toggleRecord()" disabled>🎤 ÖNCE OLUŞTUR</button>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- Mobil Alt Nav — sadece mobilde görünür -->
+<nav class="bot-nav" id="botNav">
+  <div class="bot-nav-row">
+    <button class="bnb" onclick="document.getElementById('topicInput').focus();window.scrollTo({top:0,behavior:'smooth'})">
+      <span class="bi">🔍</span><span>KONU</span>
+    </button>
+    <button class="bnb play-b" id="navPlay" onclick="togglePlay()">
+      <span class="bi" id="navPlayIco">▶</span>
+      <span id="navPlayTxt">OYNAT</span>
+    </button>
+    <button class="bnb gen-b" id="navGenBtn" onclick="autoRun()">
+      <span class="bi">🎤</span><span>OLUŞTUR</span>
+    </button>
+    <button class="bnb" onclick="scrollToSection('sessionsPanel')">
+      <span class="bi">💾</span><span>KAYIT</span>
+    </button>
+  </div>
+</nav>
+<script>
+// ====================================================
+// STATE
+// ====================================================
+let lang = 'English', style = 'RAP', rhyme = 'AABB', quatrains = 1, showTr = true;
+
+// Recording state
+let isRecording = false;
+let isVocalMode = false;
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordedBlob = null;
+let recordedUrl = null;
+let audioPlayer = null;
+let audioDest = null;
+let currentData = null;
+let bpm = 90;
+let isPlaying = false, curStep = 0, drumTimer = null;
+let audioCtx = null, silentSrc = null;
+let currentLines = []; // [{text, rhymeLetter, translation}]
+let loopActive = false;
+let padTimer = null;
+let voicesList = [];
+
+let vocalOsc = null;
+let useVocalAudio = false;
+
+// ====================================================
+// TOPIC CATEGORIES
+// ====================================================
+const CATEGORIES = [
+  {
+    name:'📚 Dilbilgisi', icon:'📚', topics:[
+      'Zamirler (I, you, he, she)','Fiiller (run, eat, sleep)','Sıfatlar (big, small, fast)',
+      'Zarflar (quickly, slowly)','Edatlar (in, on, at, by)','Bağlaçlar (and, but, or)',
+      'Sayılar (one to hundred)','Renkler (red, blue, green)','Şekiller (circle, square)',
+      'Zaman ifadeleri (now, later, soon)','Soru kelimeleri (who, what, where)',
+      'Çoğul formlar (cat → cats)'
+    ]
+  },
+  {
+    name:'🏠 Günlük Hayat', icon:'🏠', topics:[
+      'Ev ve oda isimleri','Sabah rutini','Yemek ve mutfak','Alışveriş',
+      'Giysi ve kıyafet','Para ve harcama','Telefon ve teknoloji','Temizlik rutini',
+      'Aile ve ilişkiler','Arkadaşlık','Komşuluk','Ev eşyaları'
+    ]
+  },
+  {
+    name:'🏙️ Şehir Hayatı', icon:'🏙️', topics:[
+      'Trafik ve ulaşım','Otobüs ve metro','Restoran ve kafe','Alışveriş merkezi',
+      'Park ve spor alanı','Hastane ve eczane','Okul ve eğitim','Banka ve ATM',
+      'Posta ve kargo','Otel ve konaklama','Müze ve sanat','Gece hayatı'
+    ]
+  },
+  {
+    name:'✈️ Seyahat', icon:'✈️', topics:[
+      'Havalimanı','Pasaport ve vize','Otel rezervasyonu','Yön tarifi',
+      'Turistik yerler','Yerel yemekler','Para bozdurma','Acil durumlar',
+      'Ulaşım araçları','Bagaj ve eşya','Hava durumu','Kültür farklılıkları'
+    ]
+  },
+  {
+    name:'💼 İş ve Kariyer', icon:'💼', topics:[
+      'İş görüşmesi','Ofis hayatı','Toplantı ve sunum','E-posta yazma',
+      'Meslekler ve görevler','Maaş ve terfi','Çalışma saatleri','Takım çalışması',
+      'Problem çözme','Müşteri ilişkileri','İş seyahati','Emeklilik'
+    ]
+  },
+  {
+    name:'💪 Sağlık & Spor', icon:'💪', topics:[
+      'Vücut organları','Doktor ziyareti','İlaç ve tedavi','Spor türleri',
+      'Fitness ve egzersiz','Beslenme ve diyet','Uyku düzeni','Stres yönetimi',
+      'Psikolojik sağlık','İlk yardım','Yaralanma','Sağlıklı alışkanlıklar'
+    ]
+  },
+  {
+    name:'🎭 Duygular & İlişkiler', icon:'🎭', topics:[
+      'Mutluluk ve sevinç','Üzüntü ve hayal kırıklığı','Aşk ve romantizm',
+      'Öfke ve hayal kırıklığı','Korku ve endişe','Şaşkınlık ve merak',
+      'Minnettarlık ve takdir','Özlem ve nostalji','Kıskançlık','Empati ve anlayış',
+      'Özgüven ve kararlılık','Barış ve huzur'
+    ]
+  },
+  {
+    name:'🌿 Doğa & Çevre', icon:'🌿', topics:[
+      'Mevsimler (ilkbahar, yaz)','Hava durumu','Hayvanlar ve kuşlar','Bitkiler ve çiçekler',
+      'Dağlar ve ormanlar','Okyanus ve deniz','Çevre kirliliği','Yenilenebilir enerji',
+      'Geri dönüşüm','İklim değişikliği','Tarım ve çiftlik','Uzay ve evren'
+    ]
+  },
+  {
+    name:'🎵 Sanat & Kültür', icon:'🎵', topics:[
+      'Müzik aletleri','Film ve sinema','Resim ve heykel','Tiyatro ve dans',
+      'Edebiyat ve şiir','Fotoğrafçılık','Mimari','Moda ve tasarım',
+      'Gelenekler ve festivaller','Mutfak kültürü','Tarihsel olaylar','Mitoloji'
+    ]
+  },
+  {
+    name:'💻 Teknoloji', icon:'💻', topics:[
+      'Bilgisayar ve internet','Sosyal medya','Yapay zeka','Akıllı telefonlar',
+      'Oyunlar ve e-spor','Siber güvenlik','Yazılım ve uygulama','Robot ve otomasyon',
+      'E-ticaret','Kripto ve blockchain','Sanal gerçeklik','Geleceğin teknolojisi'
+    ]
+  },
+  {
+    name:'🌟 Kişisel Gelişim', icon:'🌟', topics:[
+      'Hedef belirleme','Zaman yönetimi','Motivasyon ve azim','Alışkanlık oluşturma',
+      'Meditasyon ve mindfulness','Öğrenme teknikleri','Okuma alışkanlığı','Liderlik',
+      'Yaratıcılık','Özgüven inşa etme','Finansal okuryazarlık','Kariyer planlama'
+    ]
+  },
+  {
+    name:'🍔 Yemek & Mutfak', icon:'🍔', topics:[
+      'Kahvaltı yemekleri','Öğle yemeği','Akşam yemeği','Atıştırmalıklar',
+      'Tatlılar ve pastalar','İçecekler','Pişirme teknikleri','Tarif okuma',
+      'Restoran siparişi','Dünya mutfakları','Vejetaryen yemekler','Organik gıda'
+    ]
+  },
+];
+
+// ====================================================
+// BUILD ACCORDION
+// ====================================================
+function buildCategories() {
+  const container = document.getElementById('catContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  CATEGORIES.forEach((cat, ci) => {
+    const section = document.createElement('div');
+    section.className = 'cat-section';
+
+    const header = document.createElement('div');
+    header.className = 'cat-hdr';
+    const nameWithoutIcon = cat.name.replace(/^[^\s]+\s*/, '').trim();
+    header.innerHTML = `<span><span style="margin-right:6px">${cat.icon}</span>${nameWithoutIcon}</span><span class="cat-arr">▶</span>`;
+
+    const body = document.createElement('div');
+    body.className = 'cat-bd';
+    header.onclick = () => toggleCat(header, body);
+
+    cat.topics.forEach(topic => {
+      const pill = document.createElement('div');
+      pill.className = 'tpill';
+      pill.textContent = topic;
+      pill.onclick = () => selectTopic(pill, topic);
+      body.appendChild(pill);
+    });
+
+    section.appendChild(header);
+    section.appendChild(body);
+    container.appendChild(section);
+  });
+}
+
+function toggleCat(header, body) {
+  const isOpen = header.classList.contains('open');
+  document.querySelectorAll('.cat-hdr').forEach(h => h.classList.remove('open'));
+  document.querySelectorAll('.cat-bd').forEach(b => b.classList.remove('open'));
+  if (!isOpen) { header.classList.add('open'); body.classList.add('open'); }
+}
+
+function selectTopic(pill, topic) {
+  document.querySelectorAll('.tpill').forEach(p => p.classList.remove('sel'));
+  pill.classList.add('sel');
+  const clean = topic.replace(/\(.*?\)/g, '').trim();
+  document.getElementById('topicInput').value = clean;
+  const section = pill.closest('.cat-section');
+  if (section) {
+    const header = section.querySelector('.cat-hdr');
+    const body = section.querySelector('.cat-bd');
+    if (header && body) {
+      document.querySelectorAll('.cat-hdr').forEach(h => h.classList.remove('open'));
+      document.querySelectorAll('.cat-bd').forEach(b => b.classList.remove('open'));
+    }
+  }
+}
+
+// ====================================================
+// NAV & SCROLL HELPERS
+// ====================================================
+function updateNavPlay() {
+  const ico = document.getElementById('navPlayIco');
+  const txt = document.getElementById('navPlayTxt');
+  const btn = document.getElementById('navPlay');
+  if (!ico) return;
+  const active = isPlaying || ttsRunning;
+  ico.textContent = active ? '⏹' : '▶';
+  txt.textContent = active ? 'DURDUR' : 'OYNAT';
+  btn.classList.toggle('on', active);
+}
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+// eski sidebar fns — artık kullanılmıyor ama çağrılırsa hata vermesin
+function toggleSidebar() {}
+function closeSidebar() {}
+
+// ====================================================
+// UI SETTERS
+// ====================================================
+function setLang(el, l) {
+  document.querySelectorAll('.ltab').forEach(e => e.classList.remove('on'));
+  el.classList.add('on'); lang = l;
+  autoSelectVoice(l);
+}
+function setSt(el, s) {
+  el.closest('.style-row').querySelectorAll('.sbtn').forEach(e => e.classList.remove('on'));
+  el.classList.add('on'); style = s;
+}
+function setRh(el, r) {
+  el.closest('.rhyme-row').querySelectorAll('.rbtn').forEach(e => e.classList.remove('on'));
+  el.classList.add('on'); rhyme = r;
+}
+function setQ(el, q) {
+  el.closest('.q-row').querySelectorAll('.qbtn').forEach(e => e.classList.remove('on'));
+  el.classList.add('on'); quatrains = q;
+}
+function setTr(v) {
+  showTr = v;
+  document.getElementById('trOn').classList.toggle('on', v);
+  document.getElementById('trOff').classList.toggle('on', !v);
+}
+function setBeat(el, b) {
+  document.querySelectorAll('.btab').forEach(e => e.classList.remove('on'));
+  el.classList.add('on'); applyPreset(b);
+}
+function setBpm(v) {
+  bpm = parseInt(v);
+  document.getElementById('bpmVal').textContent = bpm;
+  if (isPlaying) { stopDrum(); setTimeout(startDrum, 50); }
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// ====================================================
+// VOICES
+// ====================================================
+const LANG_CODE = { English:'en', German:'de', Russian:'ru', Spanish:'es', Japanese:'ja' };
+const PREF_VOICES = {
+  en:['Google UK English Female','Google UK English','Samantha','Google US English','Alex','Victoria','Karen','Moira'],
+  de:['Anna','Google Deutsch','Petra','Yannick','Markus'],
+  ru:['Milena','Yuri','Google русский','Katya'],
+  es:['Mónica','Google español','Jorge','Paulina','Diego'],
+  ja:['Kyoko','Otoya','Google 日本語','Haruka']
+};
+
+function populateVoices() {
+  const all = speechSynthesis.getVoices();
+  if (!all.length) {
+    setTimeout(populateVoices, 200);
+    return;
+  }
+  voicesList = all;
+  const sel = document.getElementById('voiceSelect');
+  if (!sel) {
+    setTimeout(populateVoices, 200);
+    return;
+  }
+  sel.innerHTML = '';
+  all.forEach(v => {
+    const o = document.createElement('option');
+    o.value = v.voiceURI;
+    o.textContent = `${v.name} (${v.lang})`;
+    sel.appendChild(o);
+  });
+  autoSelectVoice(lang);
+}
+
+function autoSelectVoice(langName) {
+  if (!voicesList.length) return;
+  const sel = document.getElementById('voiceSelect');
+  if (!sel) return;
+  const code = LANG_CODE[langName] || 'en';
+  const prefs = PREF_VOICES[code] || [];
+  let best = null;
+  for (const p of prefs) {
+    best = voicesList.find(v => v.lang.startsWith(code) && v.name.includes(p));
+    if (best) break;
+  }
+  if (!best) best = voicesList.find(v => v.lang.startsWith(code));
+  if (best) sel.value = best.voiceURI;
+}
+
+function getVoice() {
+  const sel = document.getElementById('voiceSelect');
+  if (!sel) return null;
+  const uri = sel.value;
+  return voicesList.find(v => v.voiceURI === uri) || null;
+}
+
+function testVoice() {
+  speechSynthesis.cancel();
+  const samples = {
+    English: 'Walking free beneath the open sky, rhythms rise as time goes by.',
+    German:  'Ich steh allein im Licht der Nacht, hab alles selbst für mich gemacht.',
+    Russian: 'Я иду сквозь тьму и свет, ритм в душе — мой лучший ответ.',
+    Spanish: 'Camino libre bajo el sol, el ritmo guía mi corazón.',
+    Japanese:'夜の空に光が満ちて、リズムが心に届く。'
+  };
+  const u = new SpeechSynthesisUtterance(samples[lang] || samples.English);
+  const v = getVoice(); if (v) u.voice = v;
+  u.lang = getBestLangCode();
+  u.rate = calcSpeechRate(8);
+  u.pitch = 1.0;
+  u.volume = parseFloat(document.getElementById('ttsVol').value);
+  speechSynthesis.speak(u);
+}
+
+// ====================================================
+// PROMPT
+// ====================================================
+function buildPrompt(topic) {
+  const bpmSugg = style==='TRAP'?140:style==='DRILL'?150:style==='BOOM BAP'?90:style==='LOFI'?72:95;
+  return `You are RhythmLang Pro. Generate ${quatrains} quatrain(s) in ${lang} about: "${topic}".
+
+STYLE: ${style} | RHYME: ${rhyme} | LANGUAGE LEVEL: intermediate learner
+
+STRICT RULES:
+1. Each line: 6-10 natural words. Speakable at consistent rap/poetry pace.
+2. Rhyme scheme ${rhyme}: STRICTLY enforce at line endings.
+3. Match ${style} flow, energy and vocabulary.
+4. MUST include "translation" field with Turkish translation for EVERY line (even if tr=false, provide it).
+5. Lines must be phonetically distinct at endings for audible rhyme.
+6. Avoid tongue-twisters. Prioritize natural speech flow.
+7. Make it cohesive — lines tell a story about "${topic}".
+
+Return ONLY valid JSON (zero markdown):
+{
+  "verses":[{
+    "label":"VERSE 1",
+    "lines":[
+      {"text":"...","rhyme_letter":"A","translation":"Türkçe anlam buraya"},
+      {"text":"...","rhyme_letter":"A","translation":"Türkçe anlam buraya"},
+      {"text":"...","rhyme_letter":"B","translation":"Türkçe anlam buraya"},
+      {"text":"...","rhyme_letter":"B","translation":"Türkçe anlam buraya"}
+    ]
+  }],
+  "rhyme_scheme":"${rhyme}",
+  "style":"${style}",
+  "language":"${lang}",
+  "bpm_suggestion":${bpmSugg},
+  "energy_level":"HIGH"
+}
+
+LANGUAGE-SPECIFIC RULES:
+${lang === 'Japanese' ? `- Japanese: Use natural kanji+kana mix. Each line should feel like a haiku-adjacent couplet. 
+  Mora-timing: prefer even-syllable lines (5-7-5 inspired). Rhyme on ending sounds.` : ''}
+${lang === 'German' ? `- German: Compound words count as ONE word. End-rhymes must match suffixes (-heit,-keit,-ung,-en).
+  Use strong verbs. Avoid too many articles in a row.` : ''}
+${lang === 'Russian' ? `- Russian: Rich stress patterns — mark stressed syllables mentally when writing.
+  Rhyme on final stressed vowel+consonant. Use perfective/imperfective verbs for rhythm variation.` : ''}
+${lang === 'Spanish' ? `- Spanish: Natural speech rhythm, rhyme on final vowel sound. 
+  Use paroxytone (stress on penultimate) words for cleaner rhymes. Avoid hiatus.` : ''}
+`;
+}
+
+async function callAI(engine, prompt) {
+  const r = await fetch('/api/ai', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ engine, prompt })
+  });
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({ error:`HTTP ${r.status}` }));
+    throw new Error(e.error || `HTTP ${r.status}`);
+  }
+  const { result } = await r.json();
+  return result;
+}
+
+function parseAI(txt) {
+  let c = txt.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+  const s = c.indexOf('{'), e = c.lastIndexOf('}');
+  if (s !== -1 && e !== -1) c = c.substring(s, e+1);
+  return JSON.parse(c);
+}
+
+// ====================================================
+// PIPELINE
+// ====================================================
+async function autoRun() {
+  const btn = document.getElementById('genBtn');
+  const navBtn = document.getElementById('navGenBtn');
+  btn.disabled = true; btn.classList.add('busy'); btn.textContent = '⏳ ÜRETİYOR...';
+  if (navBtn) { navBtn.disabled = true; navBtn.style.opacity = '.5'; }
+  document.getElementById('pipeline').classList.add('show');
+  setPipe(0,'active'); await sleep(200);
+
+  try {
+    const topic = document.getElementById('topicInput').value.trim() || 'freedom';
+    const engine = document.getElementById('engine').value;
+
+    setPipe(0,'done'); setPipe(1,'active');
+    const raw = await callAI(engine, buildPrompt(topic));
+
+    setPipe(1,'done'); setPipe(2,'active'); await sleep(150);
+    const data = parseAI(raw);
+    currentData = data;
+
+    setPipe(2,'done'); setPipe(3,'active'); await sleep(150);
+    applyPresetForStyle(style);
+    buildDrumGrid();
+    highlightBeatTab(style);
+
+    if (data.bpm_suggestion) {
+      bpm = Math.min(200, Math.max(60, data.bpm_suggestion));
+      document.getElementById('bpmSlider').value = bpm;
+      document.getElementById('bpmVal').textContent = bpm;
+    }
+    document.getElementById('playerPanel').classList.add('show');
+
+    setPipe(3,'done'); setPipe(4,'active');
+    renderLyrics(data, engine, topic);
+    await sleep(300);
+
+    setPipe(4,'done'); setPipe(5,'active');
+    
+    // Kayıt başlat + Drum başlat
+    getCtx();
+    startRecording();
+    startDrum();
+    startPad();
+    
+    // Vokal modda çal (melodi + ritim birlikte kaydedilecek)
+    isVocalMode = true;
+    await runTTSLoop();
+    
+    // Kayıt ve drum durdur
+    stopRecording();
+    stopDrum();
+    isVocalMode = false;
+    
+    setPipe(5,'done');
+
+    setTimeout(() => document.getElementById('pipeline').classList.remove('show'), 1000);
+    document.getElementById('statusBadge').textContent = `🎵 ${topic.toUpperCase()} - KAYDEDİLDİ!`;
+
+  } catch(err) {
+    console.error(err);
+    document.getElementById('lyricsContent').innerHTML =
+      `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-txt">HATA: ${err.message}</div></div>`;
+    document.getElementById('pipeline').classList.remove('show');
+    resetPipe();
+  }
+
+  btn.disabled = false; btn.classList.remove('busy'); btn.textContent = '🎤 OLUŞTUR & ÇAL';
+  if (navBtn) { navBtn.disabled = false; navBtn.style.opacity = ''; }
+}
+
+function setPipe(i, s) {
+  const el = document.getElementById(`ps${i}`);
+  if (!el) return;
+  el.classList.remove('active','done');
+  if (s) el.classList.add(s);
+}
+function resetPipe() { for(let i=0;i<6;i++) setPipe(i,''); }
+
+// ====================================================
+// RENDER LYRICS
+// ====================================================
+const ENGINE_NAMES = { groq:'⚡ GROQ', gemini:'🌟 GEMINI', sambanova:'🔥 SAMBA', mistral:'🌊 MISTRAL' };
+const RH_COLORS = { A:'#ff3d71', B:'#00e5ff', C:'#a855f7', D:'#f59e0b' };
+
+function renderLyrics(data, engine, topic) {
+  document.getElementById('metaEngine').textContent = ENGINE_NAMES[engine] || engine;
+  document.getElementById('metaScheme').textContent = data.rhyme_scheme || rhyme;
+  document.getElementById('metaBpm').textContent = `${data.bpm_suggestion || bpm} BPM`;
+
+  currentLines = [];
+  let html = '<div class="verses-grid">';
+
+  data.verses.forEach((v, vi) => {
+    html += `<div class="verse-card" data-vi="${vi}"><div class="vc-label">${v.label || `VERSE ${vi+1}`}</div>`;
+    v.lines.forEach((l, li) => {
+      const col = RH_COLORS[l.rhyme_letter] || '#fff';
+      const idx = currentLines.length;
+      const delay = idx * 0.1;
+      const trText = l.translation || '';
+      html += `<div class="vc-line" data-idx="${idx}" data-vi="${vi}" style="animation-delay:${delay}s">
+        <div class="line-top">
+          <div class="rh-letter" style="color:${col}">${l.rhyme_letter}</div>
+          <div class="vc-text">${l.text}</div>
+        </div>
+        ${trText ? `<div class="vc-tr">${trText}</div>` : ''}
+      </div>`;
+      currentLines.push({ text: l.text, rhymeLetter: l.rhyme_letter, translation: trText });
+    });
+    html += '</div>';
+  });
+  html += '</div>';
+
+  document.getElementById('lyricsContent').innerHTML = html;
+  document.getElementById('infoStrip').style.display = 'flex';
+  document.getElementById('iTopic').textContent = topic;
+  document.getElementById('iLang').textContent = data.language || lang;
+  document.getElementById('iStyle').textContent = data.style || style;
+  document.getElementById('iEnergy').textContent = data.energy_level || '—';
+}
+
+// ====================================================
+// TTS ENGINE v5 — ADVANCED RHYME-AWARE SYSTEM
+// ====================================================
+// Kafiye şemasına göre pitch/rate/pause profilleri
+// Watchdog: takılma algıla → yumuşak geçiş
+// Sentiment: ağır kelimeler → ses rengi değişimi
+// Buffer nefes payı: kelime sayısına göre dinamik es
+// Hız kademeleri: Yavaş / Orta / Hızlı
+// ====================================================
+
+let ttsRunning = false;
+let currentLineIdx = 0;
+let speedMode = 'medium'; // slow / medium / fast
+
+// Her kafiye şeması için satır profili
+// position: 0-indexed satır no (0-3 for 4 satırlık dörtlük)
+const RHYME_PROFILES = {
+  AABB: {
+    // A=1,2 | B=3,4 — iki farklı tonalite
+    getPitch(rhymeLetter, pos) {
+      if (rhymeLetter === 'A') return 1.0;   // tok, sabit
+      if (rhymeLetter === 'B') return 1.12;  // köprü: hafif yükselme
+      return 1.0;
+    },
+    getPostPause(pos, wordCount, style) {
+      const isEnd = pos === 3;
+      const base = calcBasePause(wordCount, style);
+      // B satırı (pos 2,3) → köprü sonrası daha uzun
+      if (pos === 2) return base * 1.3;
+      if (isEnd) return base * 2.0;  // final: 2x es
+      return base;
+    },
+    getAcoustic(rhymeLetter) {
+      // A=tok (düşük pitch boost), B=keskin (yüksek+hızlı)
+      return rhymeLetter === 'A'
+        ? { filterFreq: 800, oscType: 'sine' }
+        : { filterFreq: 1400, oscType: 'triangle' };
+    }
+  },
+  AABA: {
+    getPitch(rhymeLetter, pos) {
+      if (rhymeLetter === 'A') return 1.0;   // sabit güven
+      if (rhymeLetter === 'B') return pos === 2 ? 1.15 : 0.88; // köprü: yüksek VEYA alçak
+      return 1.0;
+    },
+    getPostPause(pos, wordCount, style) {
+      const base = calcBasePause(wordCount, style);
+      if (pos === 2) return base * 1.5;  // B sonrası — kontrast vurgusu
+      if (pos === 3) return base * 2.2;  // son A dönüşü — kapanış sinyali
+      return base;
+    },
+    getAcoustic(rhymeLetter) {
+      return rhymeLetter === 'A'
+        ? { filterFreq: 750, oscType: 'sine' }
+        : { filterFreq: 1600, oscType: 'sawtooth' };
+    }
+  },
+  ABAB: {
+    getPitch(rhymeLetter, pos) {
+      if (rhymeLetter === 'A') return 1.0;
+      if (rhymeLetter === 'B') return 0.92;  // B: biraz alçak — diyalog hissi
+      return 1.0;
+    },
+    getPostPause(pos, wordCount, style) {
+      const base = calcBasePause(wordCount, style);
+      // Çapraz kafiye: her satır biraz nefes alır
+      if (pos % 2 === 1) return base * 1.4;  // B satırları daha uzun
+      if (pos === 3) return base * 1.8;
+      return base;
+    },
+    getAcoustic(rhymeLetter) {
+      return rhymeLetter === 'A'
+        ? { filterFreq: 900, oscType: 'sine' }
+        : { filterFreq: 1100, oscType: 'triangle' };
+    }
+  },
+  ABBA: {
+    getPitch(rhymeLetter, pos) {
+      // Sarma kafiye: dışarıdan içe
+      if (pos === 0) return 1.0;
+      if (pos === 1) return 1.1;   // B: yüksek
+      if (pos === 2) return 0.92;  // B: alçak (geri dönüş)
+      if (pos === 3) return 1.0;   // A: güvenli finale dönüş
+      return 1.0;
+    },
+    getPostPause(pos, wordCount, style) {
+      const base = calcBasePause(wordCount, style);
+      if (pos === 1) return base * 1.2;
+      if (pos === 2) return base * 1.4;
+      if (pos === 3) return base * 2.0;  // sarma kapandı
+      return base;
+    },
+    getAcoustic(rhymeLetter) {
+      return rhymeLetter === 'A'
+        ? { filterFreq: 700, oscType: 'sine' }
+        : { filterFreq: 1300, oscType: 'triangle' };
+    }
+  },
+  AAAA: {
+    getPitch(rhymeLetter, pos) {
+      // Monoton kafiye ama cümle sonu ritmi için hafif iniş
+      const pitches = [1.0, 1.03, 0.97, 0.95];
+      return pitches[pos] || 1.0;
+    },
+    getPostPause(pos, wordCount, style) {
+      const base = calcBasePause(wordCount, style);
+      if (pos === 3) return base * 2.5;  // tekrar başlamadan önce uzun es
+      return base * 0.9;  // satırlar arası biraz daha hızlı
+    },
+    getAcoustic(rhymeLetter) {
+      return { filterFreq: 900, oscType: 'sine' };
+    }
+  }
+};
+
+// Kafiye şemasını al — bulunamazsa AABB fallback
+function getRhymeProfile() {
+  return RHYME_PROFILES[rhyme] || RHYME_PROFILES.AABB;
+}
+
+// Temel nefes süresi: kelime sayısı + tarz + hız modu
+function calcBasePause(wordCount, styleName) {
+  const speedMs = { slow: 420, medium: 220, fast: 100 };
+  const base = speedMs[speedMode] || 220;
+  // Uzun satırlar daha fazla nefes
+  const wordBonus = wordCount > 8 ? 120 : wordCount > 6 ? 60 : 0;
+  // Tarz bonusu
+  const styleBonus = (styleName === 'LOFI' || styleName === 'POETRY') ? 200
+    : styleName === 'BOOM BAP' ? 100 : 0;
+  // Dile özgü ölçekleme (Japonca +%25, Rusça +%20 vb.)
+  const langScale = getLangPauseScale();
+  return Math.round((base + wordBonus + styleBonus) * langScale);
+}
+
+// Konuşma hızı: hız modu + BPM kombinasyonu
+function calcSpeechRate(wordCount) {
+  const speedRate = { slow: 0.82, medium: 0.95, fast: 1.25 };
+  let rate = speedRate[speedMode] || 0.95;
+  // BPM'e göre hafif hız ayarı — ama TTS'yi kesmez, sadece ritim uyumu
+  if (bpm >= 140) rate = Math.min(rate + 0.12, 1.45);
+  else if (bpm >= 120) rate = Math.min(rate + 0.06, 1.35);
+  // Japonca: mora-timing nedeniyle uzun cümle bonusu verilmez
+  if (lang !== 'Japanese' && wordCount > 9) {
+    rate = Math.min(rate + 0.04, 1.4);
+  }
+  // Dile özgü hız düzeltmesi
+  rate = Math.max(0.6, Math.min(1.5, rate + getLangRateAdjust()));
+  return rate;
+}
+
+// ====================================================
+// SENTIMENT SYNC — TÜM DİLLER
+// Her dil için ağır (karanlık/ağır) ve parlak (ışık/umut)
+// kelimeler ayrı listelerde. Pitch offset hesaplanır.
+// ====================================================
+
+const SENTIMENT_DB = {
+  English: {
+    heavy: new Set([
+      'death','dead','die','dying','fear','pain','dark','darkness','lost','alone','lonely',
+      'broken','empty','cold','black','shadow','war','hurt','cry','tears','fallen',
+      'silence','void','grave','gone','never','forever','hate','despair','prison',
+      'burn','bleed','ache','grief','sorrow','hollow','numb','fade','rust','decay'
+    ]),
+    bright: new Set([
+      'love','hope','light','dream','rise','fly','free','freedom','joy','win','gold',
+      'bright','shine','life','smile','dance','sing','together','strong','believe',
+      'power','soul','fire','glory','faith','grace','heart','courage','peace','heaven',
+      'bloom','spark','flame','rise','born','alive','soar','glow','radiant','infinite'
+    ])
+  },
+  German: {
+    heavy: new Set([
+      'tod','tot','sterben','angst','schmerz','dunkel','dunkelheit','allein','verloren',
+      'gebrochen','leer','kalt','schwarz','schatten','krieg','verletzt','weinen','tränen',
+      'stille','nichts','grab','verschwunden','niemals','hass','verzweiflung','brennen',
+      'bluten','trauer','schweigen','vergessen','zerbrochen','kälte','einsamkeit','hoffnungslos'
+    ]),
+    bright: new Set([
+      'liebe','hoffnung','licht','traum','aufsteigen','fliegen','freiheit','freude','sieg',
+      'gold','hell','scheinen','leben','lächeln','tanzen','singen','zusammen','stark',
+      'glauben','kraft','seele','feuer','glanz','glaube','gnade','herz','mut','frieden',
+      'aufblühen','funke','flamme','geboren','lebendig','strahlen','unendlich','schön'
+    ])
+  },
+  Russian: {
+    heavy: new Set([
+      'смерть','мёртвый','умереть','умирать','страх','боль','тьма','тёмный','потерян',
+      'один','одинокий','сломан','пустой','холодный','чёрный','тень','война','боль',
+      'плакать','слёзы','падение','тишина','пустота','могила','исчез','никогда',
+      'ненависть','отчаяние','гореть','кровь','скорбь','молчание','забытый','мрак'
+    ]),
+    bright: new Set([
+      'любовь','надежда','свет','мечта','взлёт','лететь','свобода','радость','победа',
+      'золото','яркий','сиять','жизнь','улыбка','танец','петь','вместе','сильный',
+      'верить','сила','душа','огонь','слава','вера','благодать','сердце','мужество',
+      'мир','цветок','искра','пламя','рождён','живой','сиять','бесконечный','красота'
+    ])
+  },
+  Spanish: {
+    heavy: new Set([
+      'muerte','muerto','morir','miedo','dolor','oscuro','oscuridad','perdido','solo',
+      'solitario','roto','vacío','frío','negro','sombra','guerra','herido','llorar',
+      'lágrimas','caído','silencio','vacío','tumba','desaparecido','nunca','jamás',
+      'odio','desesperación','arder','sangre','dolor','tristeza','olvidado','oscurecer'
+    ]),
+    bright: new Set([
+      'amor','esperanza','luz','sueño','alzar','volar','libre','libertad','alegría',
+      'victoria','oro','brillante','brillar','vida','sonrisa','bailar','cantar','juntos',
+      'fuerte','creer','poder','alma','fuego','gloria','fe','gracia','corazón','valor',
+      'paz','florecer','chispa','llama','nacer','vivo','radiar','infinito','hermoso'
+    ])
+  },
+  Japanese: {
+    heavy: new Set([
+      '死','死ぬ','死んだ','恐怖','痛み','暗い','暗闇','迷った','一人','孤独',
+      '壊れた','空','冷たい','黒','影','戦争','傷','泣く','涙','落ちた',
+      '沈黙','虚無','墓','消えた','決して','憎しみ','絶望','燃える','血','悲しみ',
+      '忘れられた','闇','孤独','苦しみ','滅び','枯れた','消える','錆びた','朽ちる'
+    ]),
+    bright: new Set([
+      '愛','希望','光','夢','飛ぶ','自由','喜び','勝利','金','明るい','輝く',
+      '命','生きる','笑顔','踊る','歌う','一緒','強い','信じる','力','魂','炎',
+      '栄光','信仰','恵み','心','勇気','平和','咲く','きらめき','炎','生まれる',
+      '輝き','無限','美しい','花','希望','永遠','輝ける','羽ばたく','蘇る'
+    ])
+  }
+};
+
+// Dile göre fonetik hız düzeltmesi
+// Japonca ve Rusça farklı syllable density'ye sahip
+const LANG_RATE_ADJUST = {
+  English:  0,      // baseline
+  German:   -0.05,  // bileşik kelimeler uzun → biraz yavaşlat
+  Russian:  -0.08,  // uzun kelimeler, zor telaffuz → yavaşlat
+  Spanish:  +0.05,  // hızlı akış, kısa syllable
+  Japanese: -0.12,  // mora-timing, her hece eşit → yavaşlat
+};
+
+// Dile göre sessizlik ölçekleme (bazı diller doğal daha fazla duraklama ister)
+const LANG_PAUSE_SCALE = {
+  English:  1.0,
+  German:   1.15,  // kelime ağırlığı → +%15 es
+  Russian:  1.20,  // yoğun telaffuz → +%20
+  Spanish:  0.90,  // akıcı → -%10
+  Japanese: 1.25,  // mora ritmi → +%25
+};
+
+// Dile göre TTS dil kodu (daha önce sadece map vardı, şimdi geliştirilmiş)
+const LANG_TTS_CODES = {
+  English:  ['en-GB', 'en-US', 'en-AU'],  // öncelikli sıra
+  German:   ['de-DE', 'de-AT', 'de-CH'],
+  Russian:  ['ru-RU'],
+  Spanish:  ['es-ES', 'es-MX', 'es-US'],
+  Japanese: ['ja-JP'],
+};
+
+// En iyi TTS dil kodunu seç (voice.lang ile eşleşen ilk)
+function getBestLangCode() {
+  const codes = LANG_TTS_CODES[lang] || ['en-US'];
+  const voice = getVoice();
+  if (voice) {
+    for (const code of codes) {
+      if (voice.lang.startsWith(code.substring(0,5))) return code;
+    }
+  }
+  return codes[0];
+}
+
+function getSentimentPitchOffset(text) {
+  if (!document.getElementById('melodicMode').checked) return 0;
+  const db = SENTIMENT_DB[lang] || SENTIMENT_DB.English;
+  // Japonca için farklı tokenizasyon (boşluksuz)
+  const words = lang === 'Japanese'
+    ? text.split('') // karakter bazlı — çok kaba ama boşuksuz dil için çalışır
+    : text.toLowerCase().split(/\s+/);
+  let score = 0;
+  if (lang === 'Japanese') {
+    // Kanji/kana kelime kontrolü — substring ara
+    const joined = text;
+    db.heavy.forEach(w => { if (joined.includes(w)) score -= 0.06; });
+    db.bright.forEach(w => { if (joined.includes(w)) score += 0.05; });
+  } else {
+    words.forEach(w => {
+      const clean = w.replace(/[.,!?;:'"()]/g, '');
+      if (db.heavy.has(clean)) score -= 0.06;
+      if (db.bright.has(clean)) score += 0.05;
+    });
+  }
+  return Math.max(-0.18, Math.min(0.18, score));
+}
+
+// Dile göre rate düzeltmesi uygula
+function getLangRateAdjust() {
+  return LANG_RATE_ADJUST[lang] || 0;
+}
+
+// Dile göre pause ölçekleme uygula
+function getLangPauseScale() {
+  return LANG_PAUSE_SCALE[lang] || 1.0;
+}
+
+// Hız modu seçimi
+function setSpeed(el, mode) {
+  document.querySelectorAll('.spd-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  speedMode = mode;
+  updateRsMode('');
+}
+
+// Reading status güncelle
+function updateReadingStatus(line, pos, watchdog) {
+  const col = { A:'#ff3d71', B:'#00e5ff', C:'#a855f7', D:'#f59e0b' };
+  const rsLine = document.getElementById('rsLine');
+  const rsRhyme = document.getElementById('rsRhyme');
+  const rsMode = document.getElementById('rsMode');
+  if (rsLine) rsLine.textContent = line.text.substring(0, 40) + (line.text.length > 40 ? '…' : '');
+  if (rsRhyme) {
+    rsRhyme.textContent = line.rhymeLetter;
+    rsRhyme.style.color = col[line.rhymeLetter] || '#fff';
+  }
+  if (rsMode) updateRsMode(watchdog ? 'watchdog' : '');
+}
+
+function updateRsMode(cls) {
+  const rsMode = document.getElementById('rsMode');
+  if (!rsMode) return;
+  const labels = { slow:'🐢 YAVAŞ', medium:'🎯 ORTA', fast:'⚡ HIZLI' };
+  rsMode.textContent = labels[speedMode] || 'ORTA';
+  rsMode.className = 'rs-mode' + (cls ? ' ' + cls : '');
+}
+
+// ====================================================
+// SPEAK ENGINE — KESİNTİSİZ OKUMA SİSTEMİ
+//
+// TEMEL PRENSİP: Her satır %100 bitmeden bir sonrakine
+// geçilmez. Ritim okumaya uyar, okuma ritme değil.
+//
+// Neden cancel() yok:
+//   - speechSynthesis.cancel() çağrısı aktif utterance'ı
+//     anında keser. Bunun yerine sadece yeni utterance
+//     ekleriz; bir önceki zaten bitmişse sorun yok,
+//     bitmemişse onend'i bekleriz.
+//
+// Neden tek utterance kuyruğu:
+//   - Browser TTS kuyruğu güvenilmez. Biz kendi
+//     sıralamamızı async/await zinciriyle yönetiriz.
+//     Bir promise resolve olmadan bir sonraki başlamaz.
+//
+// Watchdog hesabı (dil bazlı):
+//   - Her dil için karakter başına ortalama süre farklı.
+//   - Japonca mora-timing: ~130ms/karakter
+//   - Rusça: ~95ms/karakter (uzun cluster)
+//   - Almanca: ~90ms/karakter (bileşik kelimeler)
+//   - İspanyolca: ~75ms/karakter (hızlı akış)
+//   - İngilizce: ~80ms/karakter (baseline)
+//   Watchdog = max(charEstimate, wordEstimate) * 1.8
+//   Bu sayede hiçbir dilde erken kesilme olmaz.
+//
+// iOS / Android arka plan fix:
+//   - cancel() ASLA döngü içinde çağrılmaz.
+//   - Sadece stopTTS() çağrıldığında cancel() çalışır.
+// ====================================================
+
+// Dil başına karakter/ms tahmini (rate=1.0 için)
+const LANG_CHAR_MS = {
+  English:  80,
+  German:   90,
+  Russian:  95,
+  Spanish:  75,
+  Japanese: 130,  // mora-timing: her mora ~130ms
+};
+
+// Watchdog için max süre hesabı — dile özgü, güvenli üst sınır
+function calcWatchdogMs(text, rate) {
+  const charMs = LANG_CHAR_MS[lang] || 80;
+  // Karakter bazlı tahmin (daha güvenilir kelime bazlı yerine)
+  const charEst = (text.length * charMs) / Math.max(rate, 0.5);
+  // Kelime bazlı yedek tahmin
+  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  const wordEst = (wordCount * 550) / Math.max(rate, 0.5);
+  // İkisinin büyüğünü al, 1.8 güvenlik faktörü ekle
+  const raw = Math.max(charEst, wordEst) * 1.8;
+  // Minimum 3 saniye, maksimum 30 saniye
+  return Math.min(30000, Math.max(3000, raw));
+}
+
+// Tek satır oku — %100 bitmeden resolve etme
+// cancel() ÇAĞIRILMAZ — utterance kendi biter
+function speakLine(lineObj, posInVerse) {
+  return new Promise(resolve => {
+    if (!ttsRunning) { resolve(); return; }
+
+    const u = new SpeechSynthesisUtterance(lineObj.text);
+
+    // Ses seçimi
+    const voice = getVoice();
+    if (voice) u.voice = voice;
+    u.lang = getBestLangCode();
+
+    // Hız: dil + speedMode + BPM kombinasyonu
+    const wordCount = lineObj.text.split(/\s+/).filter(Boolean).length;
+    u.rate = calcSpeechRate(wordCount);
+    const volEl = document.getElementById('ttsVol');
+    u.volume = volEl ? parseFloat(volEl.value) : 1.0;
+
+    // Pitch: kafiye profili + sentiment
+    const profile = getRhymeProfile();
+    const basePitch = profile.getPitch(lineObj.rhymeLetter, posInVerse);
+    const sentimentOffset = getSentimentPitchOffset(lineObj.text);
+    u.pitch = Math.max(0.6, Math.min(1.6, basePitch + sentimentOffset));
+
+    // Watchdog — dile özgü, geniş marjlı
+    const maxMs = calcWatchdogMs(lineObj.text, u.rate);
+    let done = false;
+
+    const finish = (byWatchdog) => {
+      if (done) return;
+      done = true;
+      clearTimeout(watchdogTimer);
+      clearInterval(ttsCheckInterval);
+      if (byWatchdog) {
+        updateRsMode('watchdog');
+        setTimeout(resolve, 200);
+      } else {
+        resolve();
+      }
+    };
+
+    const watchdogTimer = setTimeout(() => finish(true), maxMs);
+
+    // Mobilde ekran kapalıyken TTS durabilir - düzenli kontrol et
+    const ttsCheckInterval = setInterval(() => {
+      if (!ttsRunning) {
+        clearInterval(ttsCheckInterval);
+        return;
+      }
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    }, 500);
+
+    // iOS bug: bazen speechSynthesis durur (sayfa arka plana geçince)
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+
+    u.onend = () => finish(false);
+    u.onerror = () => { if (!done) { done = true; clearInterval(ttsCheckInterval); resolve(); } };
+
+    window.speechSynthesis.speak(u);
+  });
+}
+
+// Kafiye profiline + dil ölçeklemesine göre satır sonu duraklaması
+function pauseAfterLine(line, posInVerse) {
+  if (!ttsRunning) return Promise.resolve();
+  const profile = getRhymeProfile();
+  const wordCount = line.text.split(/\s+/).filter(Boolean).length;
+  // getPostPause dil ölçeklemesini zaten içinde barındırıyor (calcBasePause üzerinden)
+  const ms = profile.getPostPause(posInVerse, wordCount, style);
+  return new Promise(r => setTimeout(r, ms));
+}
+
+// ANA TTS DÖNGÜSÜ
+// Her satır tam biter → duraklama → sonraki satır
+// Döngü dışarıdan sadece ttsRunning=false ile durdurulur
+async function runTTSLoop() {
+  ttsRunning = true;
+  currentLineIdx = 0;
+  document.getElementById('ttsBar').classList.add('show');
+  updateRsMode(isVocalMode ? 'VOKAL' : '');
+
+  while (ttsRunning && currentLines.length > 0) {
+    const line = currentLines[currentLineIdx];
+    const posInVerse = currentLineIdx % 4;
+
+    // UI güncelle
+    highlightLine(currentLineIdx);
+    highlightVerse(currentLineIdx);
+    playMelodyNote(line.rhymeLetter, posInVerse);
+    updateReadingStatus(line, posInVerse, false);
+
+    // Vokal modda mı çalıyoruz?
+    if (isVocalMode) {
+      await speakVocal(line.rhymeLetter, posInVerse);
+    } else {
+      await speakLine(line, posInVerse);
+    }
+
+    // Döngü durdurulduysa çık
+    if (!ttsRunning) break;
+
+    // Kafiye + dil bazlı nefes payı
+    await pauseAfterLine(line, posInVerse);
+
+    // Döngü durdurulduysa çık
+    if (!ttsRunning) break;
+
+    currentLineIdx = (currentLineIdx + 1) % currentLines.length;
+  }
+
+  // Temizlik
+  document.getElementById('ttsBar').classList.remove('show');
+  document.querySelectorAll('.vc-line').forEach(el => el.classList.remove('playing'));
+  document.querySelectorAll('.verse-card').forEach(el => el.classList.remove('active-verse'));
+  setSyncChip('');
+}
+
+// Hugging Face TTS - Gerçek ses üretimi
+let hfAudioCache = {};
+
+async function fetchHFTTS(text) {
+  if (hfAudioCache[text]) return hfAudioCache[text];
+  
+  const r = await fetch('/api/speak', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text })
+  });
+  
+  if (!r.ok) {
+    console.error('TTS error:', await r.text());
+    return null;
+  }
+  
+  const blob = await r.blob();
+  const url = URL.createObjectURL(blob);
+  hfAudioCache[text] = url;
+  return url;
+}
+
+async function speakWithHF(text) {
+  return new Promise(async (resolve) => {
+    if (!ttsRunning) { resolve(); return; }
+    
+    const url = await fetchHFTTS(text);
+    if (!url) { resolve(); return; }
+    
+    const audio = new Audio(url);
+    
+    audio.onended = () => resolve();
+    audio.onerror = () => resolve();
+    
+    // Ses efekti - gür ve şiirsel
+    const ctx = getCtx();
+    const source = ctx.createMediaElementSource(audio);
+    
+    // Gain - ses yükseltme
+    const gain = ctx.createGain();
+    gain.gain.value = 1.2;
+    
+    // Bas filtre - tok ses
+    const bass = ctx.createBiquadFilter();
+    bass.type = 'lowshelf';
+    bass.frequency.value = 200;
+    bass.gain.value = 8;
+    
+    source.connect(bass);
+    bass.connect(gain);
+    gain.connect(ctx.destination);
+    
+    try {
+      await audio.play();
+    } catch(e) {
+      resolve();
+    }
+  });
+}
+
+// Vokal melodili ses - Hugging Face TTS kullanır
+async function speakVocal(rhymeLetter, posInVerse) {
+  const line = currentLines[currentLineIdx];
+  if (!line) return;
+  
+  await speakWithHF(line.text);
+}
+
+function stopTTS() {
+  ttsRunning = false;
+  // Cancel SADECE burada — döngü içinde asla
+  window.speechSynthesis.cancel();
+  document.getElementById('ttsBar').classList.remove('show');
+  document.querySelectorAll('.vc-line').forEach(el => el.classList.remove('playing'));
+  document.querySelectorAll('.verse-card').forEach(el => el.classList.remove('active-verse'));
+  const rsLine = document.getElementById('rsLine');
+  if (rsLine) rsLine.textContent = '—';
+}
+
+function highlightLine(idx) {
+  document.querySelectorAll('.vc-line').forEach((el, i) => {
+    el.classList.toggle('playing', i === idx);
+  });
+  setSyncChip('ok');
+  const el = document.querySelector(`.vc-line[data-idx="${idx}"]`);
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function highlightVerse(lineIdx) {
+  const el = document.querySelector(`.vc-line[data-idx="${lineIdx}"]`);
+  if (!el) return;
+  const vi = parseInt(el.dataset.vi);
+  document.querySelectorAll('.verse-card').forEach((c, i) => {
+    c.classList.toggle('active-verse', i === vi);
+  });
+}
+
+function setSyncChip(state) {
+  const c = document.getElementById('syncChip');
+  if (!c) return;
+  c.className = 'sync-chip' + (state === 'ok' ? ' ok' : '');
+  c.textContent = state === 'ok' ? 'SYNC ✓' : 'SYNC';
+}
+
+// ====================================================
+// DRUM ENGINE — TTS'ye uyar, TTS'yi kesmez
+// ====================================================
+// DRUM ENGINE — TTS'ye uyar, TTS'yi kesmez
+// Drum adımları kendi timer'ında döner ama TTS'yi beklemez
+// TTS okumayı kontrol eder
+// ====================================================
+function startDrum() {
+  if (isPlaying) return;
+  isPlaying = true; curStep = 0;
+  const btn = document.getElementById('playBtn');
+  btn.textContent = '⏹'; btn.classList.add('playing');
+  const interval = (60 / bpm / 4) * 1000;
+  drumTimer = setInterval(stepDrum, interval);
+}
+
+function stopDrum() {
+  if (!isPlaying) return;
+  isPlaying = false;
+  clearInterval(drumTimer); drumTimer = null; curStep = 0;
+  const btn = document.getElementById('playBtn');
+  btn.textContent = '▶'; btn.classList.remove('playing');
+  document.querySelectorAll('.dcell').forEach(c => c.classList.remove('cur'));
+  document.querySelectorAll('.snum').forEach(n => n.classList.remove('cur'));
+}
+
+function stepDrum() {
+  document.querySelectorAll('.dcell').forEach(c => c.classList.remove('cur'));
+  document.querySelectorAll(`.dcell[data-step="${curStep}"]`).forEach(c => c.classList.add('cur'));
+  document.querySelectorAll('.snum').forEach(n => n.classList.remove('cur'));
+  const sn = document.querySelector(`.snum[data-step="${curStep}"]`);
+  if (sn) sn.classList.add('cur');
+
+  const vol = parseFloat(document.getElementById('drumVol').value);
+  ROWS.forEach(row => {
+    if (drumPat[row.key]?.[curStep]) {
+      playDrum(row.key, vol);
+      const cell = document.querySelector(`.dcell[data-row="${row.key}"][data-step="${curStep}"]`);
+      if (cell) { cell.classList.add('flash'); setTimeout(() => cell.classList.remove('flash'), 75); }
+    }
+  });
+  curStep = (curStep + 1) % 16;
+}
+
+// ====================================================
+// START / STOP ALL
+// ====================================================
+function startAll() {
+  stopAll();
+  getCtx();
+  startDrum();
+  startPad();
+  setupMediaSession();
+  document.getElementById('bgBar').classList.add('show');
+  setTimeout(() => {
+    if (currentLines.length > 0) runTTSLoop();
+  }, 250);
+  setTimeout(updateNavPlay, 300);
+}
+
+function stopAll() {
+  stopDrum();
+  stopTTS();
+  if (padTimer) { clearInterval(padTimer); padTimer = null; }
+  document.getElementById('bgBar').classList.remove('show');
+  setSyncChip('');
+  setTimeout(updateNavPlay, 50);
+}
+
+function togglePlay() {
+  if (isPlaying || ttsRunning) {
+    stopAll();
+  } else if (currentData) {
+    startAll();
+  }
+  // Mob nav'ı güncelle
+  setTimeout(updateNavPlay, 50);
+}
+
+// ====================================================
+// WEB AUDIO
+// ====================================================
+function getCtx() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    keepAlive();
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+// iOS background audio: silent buffer loop
+function keepAlive() {
+  if (!audioCtx) return;
+  const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 1, audioCtx.sampleRate);
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  src.connect(audioCtx.destination);
+  src.loop = true;
+  src.start();
+  silentSrc = src;
+}
+
+function playDrum(type, vol) {
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(vol, now);
+  g.connect(ctx.destination);
+
+  if (type === 'kick') {
+    const o = ctx.createOscillator();
+    o.connect(g);
+    o.frequency.setValueAtTime(160, now);
+    o.frequency.exponentialRampToValueAtTime(0.001, now + 0.45);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+    o.start(now); o.stop(now + 0.45);
+  } else if (type === 'snare') {
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.18, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random()*2-1) * Math.exp(-i/(ctx.sampleRate*0.06));
+    const src = ctx.createBufferSource();
+    const f = ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1100; f.Q.value=0.6;
+    src.buffer=buf; src.connect(f); f.connect(g);
+    g.gain.exponentialRampToValueAtTime(0.001, now+0.18);
+    src.start(now);
+  } else if (type === 'hihat') {
+    const buf = ctx.createBuffer(1, ctx.sampleRate*0.06, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.012));
+    const src=ctx.createBufferSource();
+    const f=ctx.createBiquadFilter(); f.type='highpass'; f.frequency.value=10000;
+    src.buffer=buf; src.connect(f); f.connect(g);
+    g.gain.exponentialRampToValueAtTime(0.001,now+0.06);
+    src.start(now);
+  } else if (type === 'bass') {
+    const o=ctx.createOscillator(); o.type='sawtooth';
+    const f=ctx.createBiquadFilter(); f.type='lowpass'; f.frequency.value=220;
+    o.connect(f); f.connect(g);
+    o.frequency.setValueAtTime(85, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now+0.3);
+    o.start(now); o.stop(now+0.3);
+  } else if (type === 'clap') {
+    const buf=ctx.createBuffer(1,ctx.sampleRate*0.1,ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.025));
+    const src=ctx.createBufferSource();
+    const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1400; f.Q.value=0.7;
+    src.buffer=buf; src.connect(f); f.connect(g);
+    g.gain.exponentialRampToValueAtTime(0.001,now+0.1);
+    src.start(now);
+  } else if (type === 'open') {
+    const buf=ctx.createBuffer(1,ctx.sampleRate*0.45,ctx.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.15));
+    const src=ctx.createBufferSource();
+    const f=ctx.createBiquadFilter(); f.type='highpass'; f.frequency.value=7000;
+    src.buffer=buf; src.connect(f); f.connect(g);
+    g.gain.exponentialRampToValueAtTime(0.001,now+0.45);
+    src.start(now);
+  }
+}
+
+// Melodic accent note — kafiye profiline göre akustik renk
+function playMelodyNote(rhymeLetter, posInVerse) {
+  if (!audioCtx) return;
+  const ctx = getCtx();
+  const now = ctx.currentTime;
+
+  // Temel nota frekansları (A=do, B=mi, C=sol, D=la)
+  const noteFreqs = { A:261.6, B:329.6, C:392.0, D:466.2 };
+  const freq = noteFreqs[rhymeLetter] || 261.6;
+
+  // Kafiye profilinden akustik profil al
+  const profile = getRhymeProfile();
+  const acoustic = profile.getAcoustic ? profile.getAcoustic(rhymeLetter) : { filterFreq:900, oscType:'triangle' };
+
+  // Daha güçlü vokal sesi - arka planda duyulabilir
+  const osc = ctx.createOscillator();
+  const osc2 = ctx.createOscillator();
+  const g = ctx.createGain();
+  const f = ctx.createBiquadFilter();
+  const f2 = ctx.createBiquadFilter();
+  f.type = 'bandpass';
+  f.frequency.value = acoustic.filterFreq;
+  f.Q.value = 1.5;
+  f2.type = 'lowpass';
+  f2.frequency.value = 2000;
+
+  osc.type = acoustic.oscType;
+  osc.frequency.value = freq;
+  osc2.type = 'sine';
+  osc2.frequency.value = freq * 2; // harmonik
+
+  osc.connect(f); osc2.connect(f2); f.connect(g); f2.connect(g); g.connect(ctx.destination);
+
+  // Verse sonunda daha belirgin
+  const vol = (posInVerse === 3) ? 0.5 : 0.35;
+  const dur = (posInVerse === 3) ? 0.6 : 0.4;
+
+  g.gain.setValueAtTime(0, now);
+  g.gain.linearRampToValueAtTime(vol * 0.5, now + 0.03);
+  g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+  osc.start(now); osc.stop(now + dur);
+  osc2.start(now); osc2.stop(now + dur);
+}
+
+// ====================================================
+// AMBIENT PAD — chord progression by style
+// ====================================================
+const PROGRESSIONS = {
+  RAP:     [[60,63,67],[58,62,65],[60,63,67],[55,58,62]],
+  TRAP:    [[60,63,67],[58,62,65],[60,63,67],[55,58,62]],
+  DRILL:   [[60,63,67],[57,60,64],[58,62,65],[55,58,62]],
+  'BOOM BAP':[[60,64,67],[58,62,65],[60,64,67],[57,60,64]],
+  LOFI:    [[60,64,67,71],[57,60,64,67],[55,59,62,65],[53,57,60,64]],
+  POETRY:  [[60,64,67],[62,65,69],[60,64,67],[58,62,65]],
+};
+
+function startPad() {
+  if (padTimer) clearInterval(padTimer);
+  let chordIdx = 0;
+  const chords = PROGRESSIONS[style] || PROGRESSIONS.RAP;
+  const barMs = (60 / bpm) * 4 * 1000;
+
+  function playChord() {
+    if (!isPlaying && !ttsRunning) return;
+    const ctx = getCtx();
+    const now = ctx.currentTime;
+    const dur = (barMs / 1000) * 0.9;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.055, now + 0.08);
+    g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+    g.connect(ctx.destination);
+    chords[chordIdx % chords.length].forEach(note => {
+      const o = ctx.createOscillator(); o.type = 'sine';
+      o.frequency.value = 440 * Math.pow(2, (note-69)/12);
+      o.connect(g); o.start(now); o.stop(now + dur);
+    });
+    chordIdx++;
+  }
+
+  playChord();
+  padTimer = setInterval(playChord, barMs);
+}
+
+// ====================================================
+// DRUM PATTERNS
+// ====================================================
+const drumPat = {
+  kick: [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+  snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+  hihat:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
+  bass: [1,0,0,1,0,0,1,0,1,0,0,1,0,0,0,0],
+  clap: [0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0],
+  open: [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+};
+const PRESETS = {
+  TRAP:    {kick:[1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0],snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],hihat:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],bass:[1,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0],clap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],open:[0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0]},
+  'BOOM BAP':{kick:[1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0],snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],hihat:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],bass:[1,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0],clap:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],open:[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1]},
+  DRILL:   {kick:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0],snare:[0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0],hihat:[1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1],bass:[1,0,1,0,0,0,0,1,1,0,0,0,0,1,0,0],clap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],open:[0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0]},
+  'LO-FI': {kick:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1],snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],hihat:[1,0,1,0,0,0,1,0,1,0,0,0,1,0,1,0],bass:[1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],clap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],open:[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1]},
+  AFROBEATS:{kick:[1,0,0,1,0,1,0,0,1,0,0,1,0,0,1,0],snare:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],hihat:[1,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0],bass:[1,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0],clap:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],open:[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0]},
+  PHONK:   {kick:[1,0,0,0,1,0,0,1,0,0,1,0,1,0,0,0],snare:[0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0],hihat:[1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0],bass:[1,0,1,0,0,0,0,1,1,0,0,0,0,1,0,0],clap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],open:[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1]},
+  RAP:     {kick:[1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0],snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],hihat:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],bass:[1,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0],clap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],open:[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0]},
+  POETRY:  {kick:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],snare:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],hihat:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],bass:[1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],clap:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],open:[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1]},
+};
+
+function applyPreset(name) {
+  const p = PRESETS[name] || PRESETS.TRAP;
+  Object.keys(p).forEach(k => { drumPat[k] = [...p[k]]; });
+  buildDrumGrid();
+}
+function applyPresetForStyle(s) {
+  const map = { RAP:'RAP', TRAP:'TRAP', DRILL:'DRILL', LOFI:'LO-FI', 'BOOM BAP':'BOOM BAP', POETRY:'POETRY' };
+  applyPreset(map[s] || 'TRAP');
+}
+function highlightBeatTab(s) {
+  const map2 = { RAP:'RAP', TRAP:'TRAP', DRILL:'DRILL', LOFI:'LO-FI', 'BOOM BAP':'BOOM BAP', POETRY:'TRAP' };
+  const target = map2[s] || 'TRAP';
+  document.querySelectorAll('.btab').forEach(t => {
+    const txt = t.textContent.trim();
+    let match = txt === target;
+    if (!match && target === 'BOOM BAP') match = txt.includes('BOOM');
+    if (!match && target === 'LO-FI') match = txt.includes('LO');
+    t.classList.toggle('on', match);
+  });
+}
+
+const ROWS = [
+  {key:'kick', label:'KICK',   cls:'ck'},
+  {key:'snare',label:'SNARE',  cls:'cs'},
+  {key:'hihat',label:'HI-HAT', cls:'ch'},
+  {key:'bass', label:'BASS',   cls:'cb'},
+  {key:'clap', label:'CLAP',   cls:'cc'},
+  {key:'open', label:'OPEN HH',cls:'co'},
+];
+
+function buildStepNums() {
+  const c = document.getElementById('stepNums');
+  c.innerHTML = '<div class="snum"></div>';
+  for (let i=0;i<16;i++) {
+    const s = document.createElement('div');
+    s.className = 'snum'; s.textContent = i+1; s.dataset.step = i;
+    c.appendChild(s);
+  }
+}
+
+function buildDrumGrid() {
+  const g = document.getElementById('drumGrid');
+  g.innerHTML = '';
+  ROWS.forEach(row => {
+    const lbl = document.createElement('div');
+    lbl.className = 'dg-lbl'; lbl.textContent = row.label;
+    g.appendChild(lbl);
+    for (let i=0;i<16;i++) {
+      const cell = document.createElement('div');
+      cell.className = 'dcell'; cell.dataset.row = row.key; cell.dataset.step = i;
+      if (drumPat[row.key]?.[i]) cell.classList.add(row.cls);
+      cell.onclick = () => {
+        drumPat[row.key][i] = drumPat[row.key][i] ? 0 : 1;
+        cell.classList.toggle(row.cls);
+      };
+      g.appendChild(cell);
+    }
+  });
+}
+
+function randomDrums() {
+  ROWS.forEach(r => { for(let i=0;i<16;i++) drumPat[r.key][i] = Math.random()>0.65?1:0; });
+  buildDrumGrid();
+}
+function clearDrums() {
+  ROWS.forEach(r => { drumPat[r.key] = Array(16).fill(0); });
+  buildDrumGrid();
+}
+
+// ====================================================
+// MEDIA SESSION
+// ====================================================
+function setupMediaSession() {
+  if (!('mediaSession' in navigator)) return;
+  const topic = document.getElementById('topicInput').value.trim() || 'RhythmLang';
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: `RhythmLang: ${topic}`,
+    artist: `${lang} · ${style} · ${bpm} BPM`,
+    album: 'RhythmLang Pro v4',
+  });
+  navigator.mediaSession.setActionHandler('play', () => { if(!isPlaying) startAll(); });
+  navigator.mediaSession.setActionHandler('pause', stopAll);
+  navigator.mediaSession.setActionHandler('stop', stopAll);
+  navigator.mediaSession.playbackState = 'playing';
+}
+
+// ====================================================
+// COPY
+// ====================================================
+function copyAll() {
+  const lines = [];
+  document.querySelectorAll('.vc-text').forEach(e => lines.push(e.textContent));
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const b = document.querySelector('.copy-btn');
+    b.textContent = '✅ KOPYALANDI';
+    setTimeout(() => b.textContent = 'KOPYALA', 2000);
+  });
+}
+
+// ====================================================
+// SESSIONS
+// ====================================================
+function getSessions() {
+  try { 
+    const data = localStorage.getItem('rl_sessions');
+    return data ? JSON.parse(data) : []; 
+  } catch { 
+    return []; 
+  }
+}
+
+function saveSession() {
+  if (!currentData) { alert('Önce şiir oluştur!'); return; }
+  const name = document.getElementById('sessName').value.trim() || 'Oturum ' + Date.now();
+  const s = {
+    name, currentData,
+    drumPat: JSON.parse(JSON.stringify(drumPat)),
+    bpm, lang, style, rhyme, quatrains, showTr,
+    topic: document.getElementById('topicInput').value.trim()
+  };
+  const sessions = getSessions();
+  const idx = sessions.findIndex(x => x.name === name);
+  if (idx !== -1) sessions[idx] = s; else sessions.push(s);
+  localStorage.setItem('rl_sessions', JSON.stringify(sessions));
+  renderSessions(); alert('Kaydedildi: ' + name);
+}
+
+function loadSession(s) {
+  stopAll();
+  currentData = s.currentData;
+  Object.keys(s.drumPat).forEach(k => { if (drumPat[k]) drumPat[k] = [...s.drumPat[k]]; });
+  bpm = s.bpm||90; lang=s.lang||'English'; style=s.style||'RAP';
+  rhyme=s.rhyme||'AABB'; quatrains=s.quatrains||1; showTr=s.showTr!==undefined?s.showTr:true;
+  document.getElementById('topicInput').value = s.topic||'';
+  document.getElementById('bpmSlider').value = bpm;
+  document.getElementById('bpmVal').textContent = bpm;
+  document.querySelectorAll('.ltab').forEach(el => el.classList.toggle('on', el.dataset.lang===lang));
+  document.querySelectorAll('.sbtn').forEach(el => el.classList.toggle('on', el.textContent.includes(style)));
+  document.querySelectorAll('.rhyme-row .rbtn').forEach(el => el.classList.toggle('on', el.textContent.trim()===rhyme));
+  document.querySelectorAll('.qbtn').forEach((el,i) => el.classList.toggle('on', i+1===quatrains));
+  document.getElementById('trOn').classList.toggle('on', showTr);
+  document.getElementById('trOff').classList.toggle('on', !showTr);
+  buildDrumGrid();
+  renderLyrics(currentData, 'groq', s.topic);
+  document.getElementById('playerPanel').classList.add('show');
+  autoSelectVoice(lang);
+  alert('Yüklendi: ' + s.name);
+}
+
+function deleteSession(name) {
+  const sessions = getSessions().filter(s => s.name !== name);
+  localStorage.setItem('rl_sessions', JSON.stringify(sessions));
+  renderSessions();
+}
+
+function renderSessions() {
+  const list = document.getElementById('sessionsList');
+  const sessions = getSessions();
+  if (!sessions.length) {
+    list.innerHTML = '<div style="padding:10px;text-align:center;font-family:IBM Plex Mono,monospace;font-size:8px;color:var(--dim2)">Henüz kayıt yok</div>';
+    return;
+  }
+  list.innerHTML = '';
+  sessions.forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'sess-item';
+    d.innerHTML = `<span class="sess-name">${s.name}</span>
+      <div class="sess-acts">
+        <button class="lb" data-n="${s.name}">🔄 YÜKLE</button>
+        <button class="db" data-n="${s.name}">🗑️ SİL</button>
+      </div>`;
+    list.appendChild(d);
+  });
+  list.querySelectorAll('.lb').forEach(b => b.onclick = () => {
+    const s = getSessions().find(x => x.name===b.dataset.n);
+    if (s) loadSession(s);
+  });
+  list.querySelectorAll('.db').forEach(b => b.onclick = () => {
+    if (confirm(`"${b.dataset.n}" silinsin mi?`)) deleteSession(b.dataset.n);
+  });
+}
+
+// ====================================================
+// EXPORT / IMPORT
+// ====================================================
+function blob(content, type, name) {
+  const url = URL.createObjectURL(new Blob([content], {type}));
+  const a = document.createElement('a'); a.href=url; a.download=name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function exportJSON() {
+  if (!currentData) { alert('Önce şiir oluştur.'); return; }
+  const s = { currentData, drumPat: JSON.parse(JSON.stringify(drumPat)), bpm, lang, style, rhyme, quatrains, showTr,
+    topic: document.getElementById('topicInput').value.trim(), exportedAt: new Date().toISOString() };
+  blob(JSON.stringify(s,null,2), 'application/json', `rhythmlang_${s.topic||'export'}_${Date.now()}.json`);
+}
+function importJSON() {
+  const inp = document.createElement('input'); inp.type='file'; inp.accept='application/json';
+  inp.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try {
+        const s = JSON.parse(ev.target.result);
+        if (!s.currentData || !s.drumPat) throw new Error('Geçersiz dosya');
+        loadSession(s);
+      } catch(err) { alert('Hata: ' + err.message); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+function exportTxt() {
+  if (!currentLines.length) { alert('Önce şiir oluştur.'); return; }
+  let txt = '';
+  currentLines.forEach(({text, translation}, i) => {
+    txt += text + '\n';
+    if (translation) txt += `  → ${translation}\n`;
+    if ((i+1) % 4 === 0) txt += '\n';
+  });
+  blob(txt, 'text/plain', `lyrics_${document.getElementById('topicInput').value.trim()||'rhythmlang'}.txt`);
+}
+function exportDrum() {
+  blob(JSON.stringify({bpm, pattern: JSON.parse(JSON.stringify(drumPat)), style}, null, 2),
+    'application/json', `drum_${style}.json`);
+}
+
+// ====================================================
+// RECORDING SYSTEM - Ses kaydet ve indir
+// ====================================================
+function startRecording() {
+  if (!audioCtx) getCtx();
+  
+  // AudioContext'ten stream al
+  audioDest = audioCtx.createMediaStreamDestination();
+  audioCtx.connect(audioDest);
+  
+  mediaRecorder = new MediaRecorder(audioDest.stream, { mimeType: 'audio/webm' });
+  recordedChunks = [];
+  
+  mediaRecorder.ondataavailable = e => {
+    if (e.data.size > 0) recordedChunks.push(e.data);
+  };
+  
+  mediaRecorder.onstop = () => {
+    recordedBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+    recordedUrl = URL.createObjectURL(recordedBlob);
+    
+    // Bağlantıyı temizle
+    if (audioDest) {
+      audioCtx.disconnect(audioDest);
+    }
+    
+    // İndir
+    const a = document.createElement('a');
+    a.href = recordedUrl;
+    a.download = `rhythmlang_${Date.now()}.webm`;
+    a.click();
+    
+    // Manuel butonunu aktif et
+    const recBtn = document.getElementById('recBtn');
+    recBtn.disabled = false;
+    recBtn.textContent = '▶ KAYDI ÇAL';
+    recBtn.style.borderColor = '#10b981';
+    recBtn.style.color = '#10b981';
+    
+    // Audio element oluştur
+    if (audioPlayer) audioPlayer.pause();
+    audioPlayer = new Audio(recordedUrl);
+  };
+  
+  mediaRecorder.start(100);
+  isRecording = true;
+}
+
+function stopRecording() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+  }
+  isRecording = false;
+}
+
+// Manuel mod - kaydedilmiş sesi çal
+function toggleManualPlay() {
+  const recBtn = document.getElementById('recBtn');
+  
+  if (!recordedBlob) {
+    alert('Önce şiir oluşturup kaydetmelisin!');
+    return;
+  }
+  
+  if (audioPlayer && !audioPlayer.paused) {
+    audioPlayer.pause();
+    recBtn.textContent = '▶ KAYDI ÇAL';
+  } else {
+    if (!audioPlayer) {
+      audioPlayer = new Audio(recordedUrl);
+    }
+    audioPlayer.play();
+    recBtn.textContent = '⏸ DURDUR';
+  }
+}
+
+// ====================================================
+// VISIBILITY CHANGE
+// ====================================================
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    if (audioCtx?.state === 'suspended') audioCtx.resume();
+    if (ttsRunning && window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+  }
+});
+
+// ====================================================
+// SERVICE WORKER
+// ====================================================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
+// ====================================================
+// INIT
+// ====================================================
+function initApp() {
+  try {
+    speechSynthesis.onvoiceschanged = populateVoices;
+    populateVoices();
+    buildCategories();
+    buildStepNums();
+    buildDrumGrid();
+    renderSessions();
+    setTimeout(() => { updateRsMode(''); updateNavPlay(); }, 500);
+  } catch(e) {
+    console.error('Init error:', e);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+
+// iOS AudioContext wake
+document.addEventListener('touchstart', () => {
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}, { once: true });
+</script>
+</body>
+</html>
