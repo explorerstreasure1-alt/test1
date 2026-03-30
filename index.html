@@ -1602,25 +1602,53 @@ async function runTTSLoop() {
 }
 
 // Hugging Face TTS - Gerçek ses üretimi (şimdilik devre dışı)
-// let hfAudioCache = {};
+// Hugging Face TTS Cache
+let hfAudioCache = {};
 
-// Basit TTS - tarayıcının kendi sesi
+// Hugging Face TTS - Gerçek ses
 async function speakVocal(rhymeLetter, posInVerse) {
   const line = currentLines[currentLineIdx];
   if (!line) return;
   
-  // Tarayıcının TTS'sini kullan
-  const u = new SpeechSynthesisUtterance(line.text);
-  const voice = getVoice();
-  if (voice) u.voice = voice;
-  u.lang = getBestLangCode();
-  u.rate = 0.9;
+  const text = line.text;
   
-  return new Promise(resolve => {
-    u.onend = () => resolve();
-    u.onerror = () => resolve();
-    speechSynthesis.speak(u);
-  });
+  // Cache kontrol
+  if (hfAudioCache[text]) {
+    const url = hfAudioCache[text];
+    const audio = new Audio(url);
+    return new Promise(resolve => {
+      audio.onended = () => resolve();
+      audio.onerror = () => resolve();
+      audio.play().catch(() => resolve());
+    });
+  }
+  
+  // API çağrısı
+  try {
+    const response = await fetch('/api/speak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    
+    if (!response.ok) {
+      console.error('TTS error:', response.status);
+      return;
+    }
+    
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    hfAudioCache[text] = url;
+    
+    const audio = new Audio(url);
+    return new Promise(resolve => {
+      audio.onended = () => resolve();
+      audio.onerror = () => resolve();
+      audio.play().catch(() => resolve());
+    });
+  } catch (err) {
+    console.error('TTS error:', err);
+  }
 }
 
 function stopTTS() {
